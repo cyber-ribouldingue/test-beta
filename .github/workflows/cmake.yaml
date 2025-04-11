@@ -11,7 +11,7 @@ env:
   QT_VERSION: 6.8.3
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   security-events: write
 
@@ -66,8 +66,7 @@ jobs:
 
       - name: Build APK with Gradle (debug mode)
         working-directory: ./config/android
-        run: |
-          ./gradlew assembleDebug --info --stacktrace --no-daemon
+        run: ./gradlew assembleDebug --info --stacktrace --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

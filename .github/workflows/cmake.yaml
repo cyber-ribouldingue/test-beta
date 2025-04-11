@@ -161,10 +161,10 @@ jobs:
           ./emsdk install 3.1.46
           ./emsdk activate 3.1.46
 
-      - name: Install Qt for WASM
+      - name: Install Qt (without target)
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{ env.QT_VERSION }}'        
+          version: '${{ env.QT_VERSION }}'
 
       - name: Configure CMake for WASM
         run: |
@@ -181,6 +181,7 @@ jobs:
         with:
           name: TestApp-wasm
           path: build-wasm/*.html
+
 
   Last-job:
     name: Last Job

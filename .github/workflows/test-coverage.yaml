@@ -1,0 +1,74 @@
+name: C++ Test Coverage (LLVM)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Debug
+  QT_VERSION: 6.8.3
+  ARCGIS_VERSION: 200.6
+
+jobs:
+  coverage:
+    name: Coverage (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm lcov ninja-build
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '${{ env.QT_VERSION }}'
+
+      - name: Configure CMake for coverage
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
+
+      - name: Build with coverage
+        run: |
+          cmake --build build
+
+      - name: Run tests and generate profraw
+        run: |
+          cd build/tests/cpp-tests
+          LLVM_PROFILE_FILE="CppTest.profraw" ./CppTest
+
+      - name: Generate .profdata
+        run: |
+          cd build/tests/cpp-tests
+          llvm-profdata merge -output=CppTest.profdata CppTest.profraw
+
+      - name: Show coverage in terminal
+        run: |
+          cd build/tests/cpp-tests
+          llvm-cov show ./CppTest -instr-profile=CppTest.profdata > coverage.txt
+          head -n 30 coverage.txt
+
+      - name: Generate HTML coverage report
+        run: |
+          cd build/tests/cpp-tests
+          llvm-cov export ./CppTest -instr-profile=CppTest.profdata -format=lcov > coverage.info
+          lcov --remove coverage.info '/usr/*' '*/build/*' --output-file coverage.info.cleaned --ignore-errors unused
+          genhtml coverage.info.cleaned --output-directory coverage_html
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm-coverage-html
+          path: build/tests/cpp-tests/coverage_html

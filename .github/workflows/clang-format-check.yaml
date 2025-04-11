@@ -1,0 +1,42 @@
+name: Clang Format Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup clang-format
+        uses: DoozyX/clang-format-lint-action@v0.17
+        with:
+          source: '.'
+          extensions: 'cpp,h'
+          clangFormatVersion: 14
+          inplace: false
+          style: file
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [[ $(git status --porcelain=v1 | grep -E '\.(cpp|h)$') ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fail if changes exist
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "clang-format found unformatted files."
+          exit 1

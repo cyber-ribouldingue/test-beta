@@ -1,0 +1,24 @@
+project = TestApp
+description = "Documentation développeur de l'application TestApp"
+version = 0.1
+
+outputdir = docs/build
+sourcedirs = src
+exampledirs = examples
+imagedirs = docs/images
+headerdirs = src
+
+indexes = 
+    $QTDIR/doc/qt6/qtcore/qtcore.index
+    $QTDIR/doc/qt6/qtgui/qtgui.index
+    $QTDIR/doc/qt6/qtqml/qtqml.index
+    $QTDIR/doc/qt6/qtquick/qtquick.index
+
+language = C++
+autolink = true
+buildversion = 6.8.3
+generateindex = true
+navigation = true
+
+sourcedirs += tests/cpp-tests
+headerdirs += tests/cpp-tests

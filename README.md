@@ -1,7 +1,7 @@
-
-![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-check.yaml/badge.svg)
-![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-daily.yaml/badge.svg)
-![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-pr.yaml/badge.svg)
+[![Pages](https://github.com/GuillaumeBelz/cyber-ribouldingue-test-beta/actions/workflows/pages/pages-build-deployment/badge.svg)](https://guillaumebelz.github.io/cyber-ribouldingue-test-beta/)
+[![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-check.yaml/badge.svg)](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-check.yaml)
+[![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-daily.yaml/badge.svg)](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-daily.yaml)
+[![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-pr.yaml/badge.svg)](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-pr.yaml)
 
 Les developpeurs C++/Qt peuvent facilement creer des projets avec QtCreator https://doc.qt.io/qtcreator/creator-project-creating.html et les executer sur Desktop https://doc.qt.io/qtcreator/creator-build-example-application.html et sur mobile https://doc.qt.io/qtcreator/qtcreator-accelbubble-example.html. Cet outil est tres bien pour les developpeurs, pour creer une application sur une machine locale, mais la création d'une application a destination du grand public nécessite d'autres types d'outils :
 
@@ -61,19 +61,4 @@ A faire :
 
 -----
 
-Pour tester si un script fonctionne comme attendu, il suffit de se mettre a la place des utilisateurs. Par exemple, pour tester un script de compilation, il suffit de télécharger le zip ou l'installateur de l'application que le script a produit et l'installer sur la machine. L'application devrait demarer sans erreur et afficher une fentre contenat "hello world" sur un fond blanc. Par exemple sur Mac (les messages affichés peuvent changer) :
-
-![Screenshot 2025-03-31 at 8 45 07 PM](https://github.com/user-attachments/assets/9354298a-8d4e-4e8e-9bb1-79859ff423c3)
-
-La compilation de l'application produit plusieurs messages indiquant la progression et le resultat. Il ne doit pas y avoir de message d'erreur (mais c'est possible d'avoir des averstissements "warning"). Par exemple sur Mac :
-
-![Screenshot 2025-03-31 at 8 44 36 PM](https://github.com/user-attachments/assets/88b032f9-81a9-407c-afbd-2ca3ee071997)
-
-Pour les tests du code C++ ("Test1"), cela doit afficher que tous les tests passent ("passed") et aucun échec ("failed"). Par exemple sur Mac :
-
-![Screenshot 2025-03-31 at 8 45 24 PM](https://github.com/user-attachments/assets/0595cd7b-7bc8-4174-8bee-e21fc0dffab6)
-
-Pareil pour les tests graphiques ("UiTest1"), cela doit affiher que des tests qui passent, pas d'erreur. Par exemple sur Mac :
-
-![Screenshot 2025-03-31 at 8 45 39 PM](https://github.com/user-attachments/assets/2e5b163c-d28c-41ca-bc33-9860e5fe3b52)
-
+Pour tester si un script fonctionne comme attendu, il suffit de se mettre a la place des utilisateurs. Par exemple, pour tester un script de compilation, il suffit de télécharger le zip ou l'installateur de l'application que le script a produit et l'installer sur la machine. L'application devrait demarer sans erreur et afficher une fentre contenat "hello world" sur un fond blanc.

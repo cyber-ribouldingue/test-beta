@@ -1,0 +1,58 @@
+name: CPack Packaging
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.8.3
+
+jobs:
+  package:
+    name: Generate Packages with CPack
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      - name: Install packaging tools (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev rpm
+
+      - name: Configure project with CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build
+        run: |
+          cmake --build build --config ${{ env.BUILD_TYPE }}
+
+      - name: Generate package with CPack
+        run: |
+          cmake --build build --target package
+
+      - name: Upload generated packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: CPack-${{ matrix.os }}
+          path: |
+            build/*.zip
+            build/*.msi
+            build/*.deb
+            build/*.rpm
+            build/*.dmg
+            build/*.tgz

@@ -1,0 +1,32 @@
+name: QDoc Developer Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  generate-doc:
+    name: Build QDoc Developer Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Qt (with qdoc)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+
+      - name: Generate documentation with qdoc
+        run: |
+          qdoc docs/testapp.qdocconf
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: developer-docs
+          path: docs/build/

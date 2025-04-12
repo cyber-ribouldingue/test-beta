@@ -30,11 +30,7 @@ qt_add_qml_module(TestApp
             config/android/gradlew.bat
 )
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
 set_target_properties(TestApp PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.testapp
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -57,3 +53,29 @@ add_subdirectory(tests/qt-tests)
 add_subdirectory(tests/qml-tests)
 add_library(DummyIOS STATIC src/hello_ios.cpp)
 add_library(CodeQLTarget STATIC src/dummy_codeql.cpp)
+
+# --- Packaging avec CPack ---
+include(InstallRequiredSystemLibraries)
+
+set(CPACK_PACKAGE_NAME "TestApp")
+set(CPACK_PACKAGE_VENDOR "Guillaume Belz")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Application Qt multiplateforme d'exemple")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_CONTACT "dev@example.com")
+
+# Formats selon l'OS
+if(WIN32)
+    set(CPACK_GENERATOR "ZIP;NSIS")
+elseif(APPLE)
+    set(CPACK_GENERATOR "DragNDrop;ZIP")
+elseif(UNIX)
+    set(CPACK_GENERATOR "DEB;RPM;TGZ")
+endif()
+
+# Définir des fichiers README ou LICENSE si désiré
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+
+include(CPack)

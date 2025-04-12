@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Guide Utilisateur – TestApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 2em;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #003366;
+        }
+        code, pre {
+            background: #f5f5f5;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.5em;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Guide Utilisateur – TestApp</h1>
+
+<p>Bienvenue dans TestApp, une application Qt/C++ multiplateforme. Ce guide explique comment l’installer, l’utiliser, exécuter les tests et générer des installeurs.</p>
+
+<h2>Prérequis</h2>
+<ul>
+    <li>CMake 3.16 ou plus</li>
+    <li>Qt 6.8.x</li>
+    <li>Compilateur C++20 (GCC, Clang, MSVC...)</li>
+    <li>Git (optionnel)</li>
+    <li>Ninja (recommandé)</li>
+    <li>QDoc (pour la documentation développeur)</li>
+</ul>
+
+<h2>Installation de l'application</h2>
+<table>
+    <thead>
+    <tr><th>Plateforme</th><th>Fichier</th><th>Instructions</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>Windows</td><td>TestApp-x.y.z.msi ou .zip</td><td>Double-cliquez pour installer</td></tr>
+    <tr><td>macOS</td><td>TestApp-x.y.z.dmg</td><td>Ouvrez et déplacez dans /Applications</td></tr>
+    <tr><td>Linux</td><td>.deb / .rpm</td><td>dpkg -i ou rpm -i</td></tr>
+    <tr><td>Android</td><td>.apk</td><td>Installation via ADB</td></tr>
+    <tr><td>Web</td><td>index.html</td><td>Ouvrir dans un navigateur compatible</td></tr>
+    </tbody>
+</table>
+
+<h2>Lancement</h2>
+<p>Exécutez le fichier <code>TestApp</code>. Une fenêtre s’ouvre avec le message "Hello World".</p>
+
+<h3>Android</h3>
+<pre>adb install -r TestApp-debug.apk</pre>
+
+<h2>Tests</h2>
+<p>Trois exécutables sont disponibles :</p>
+<ul>
+    <li><code>./CppTest</code> – tests unitaires C++</li>
+    <li><code>./QtTests</code> – tests avec QTest</li>
+    <li><code>./QmlTests</code> – tests QML</li>
+</ul>
+
+<h2>Compilation manuelle</h2>
+<pre>
+git clone https://github.com/votre-utilisateur/cyber-ribouldingue-test-beta.git
+cd cyber-ribouldingue-test-beta
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+</pre>
+
+<h2>Générer un installeur</h2>
+<pre>
+cd build
+cpack
+</pre>
+
+<h2>Générer la documentation développeur</h2>
+<pre>qdoc docs/testapp.qdocconf</pre>
+
+<h2>Structure du projet</h2>
+<pre>
+src/        Code C++
+qml/        Interface QML
+tests/      Tests C++ et QML
+config/     Fichiers Android, Qt, CMake
+docs/       Documentation
+.github/    Workflows CI/CD
+</pre>
+
+<h2>Support</h2>
+<p>Pour toute question, ouvrez une issue sur GitHub ou contactez : <code>dev@example.com</code></p>
+
+<h2>Licence</h2>
+<p>MIT - © 2022–2025 Guillaume Belz</p>
+
+</body>
+</html>

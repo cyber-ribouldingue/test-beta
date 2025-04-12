@@ -61,6 +61,12 @@ jobs:
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses
 
+      - name: Install Qt (Android)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: android
+
       - name: Set execute permissions for Gradle wrapper
         run: chmod +x ./config/android/gradlew
 

@@ -9,7 +9,7 @@ class Setup : public QObject
     Q_OBJECT
 public:
     Setup() = default;
-
+    virtual ~Setup() = default;
 public slots:
     void applicationAvailable();
     void qmlEngineAvailable(QQmlEngine *engine);

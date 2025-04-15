@@ -7,15 +7,20 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-wasm:
     runs-on: ubuntu-latest
-
     env:
+      BUILD_TYPE: Release
       QT_VERSION: 6.6.3
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: 3.1.45
 
       - name: Install dependencies
         run: |
@@ -23,25 +28,17 @@ jobs:
           sudo apt-get install -y ninja-build
           pip install aqtinstall
 
-      - name: Install Emscripten
-        run: |
-          git clone https://github.com/emscripten-core/emsdk.git
-          cd emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
-          source ./emsdk_env.sh
-
       - name: Install Qt for WebAssembly
         run: |
-          python3 -m aqt install-qt linux desktop $QT_VERSION wasm_32 --outputdir $HOME/Qt
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} wasm_32 --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
-          source emsdk/emsdk_env.sh
-          cmake -S . -B build \
+          cmake -S . -B build/wasm \
             -DCMAKE_TOOLCHAIN_FILE=cmake/wasm.toolchain.cmake \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/$QT_VERSION/wasm_32 \
-            -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/wasm_32 \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -G Ninja
 
       - name: Build project
-        run: cmake --build build
+        run: cmake --build build/wasm

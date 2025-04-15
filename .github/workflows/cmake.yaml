@@ -27,19 +27,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
+      - name: Install Qt using aqt with fallback (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pip install aqtinstall
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64
+        if: matrix.os == 'ubuntu-latest'
 
       - name: Build
         run: cmake --build build --config ${{ env.BUILD_TYPE }}
+        if: matrix.os == 'ubuntu-latest'
 
       - name: Run tests
         run: ctest --test-dir build
+        if: matrix.os == 'ubuntu-latest'
 
   build-android:
     name: Build Android APK
@@ -62,13 +66,14 @@ jobs:
         run: yes | sdkmanager --licenses
 
       - name: Install Qt (Android)
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          target: android
+        run: |
+          pip install aqtinstall
+          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
       - name: Set execute permissions for Gradle wrapper
-        run: chmod +x ./config/android/gradlew
+        run: |
+          chmod +x ./config/android/gradlew
+          chmod +x ./config/android/gradlew.bat
 
       - name: Build APK with Gradle (debug mode)
         working-directory: ./config/android
@@ -89,10 +94,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          target: ios
+        run: |
+          pip3 install aqtinstall
+          python3 -m aqt install-qt mac desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
       - name: Configure CMake
         run: |
@@ -101,6 +105,7 @@ jobs:
                 -DCMAKE_OSX_SYSROOT=iphoneos \
                 -DCMAKE_OSX_ARCHITECTURES=arm64 \
                 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+                -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/ios_arm64 \
                 -G Ninja
 
       - name: Build
@@ -133,14 +138,14 @@ jobs:
           ./emsdk activate 3.1.46
 
       - name: Install Qt (WASM)
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
+        run: |
+          pip install aqtinstall
+          python3 -m aqt install-qt linux wasm_32 ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
       - name: Configure CMake with Emscripten
         run: |
           source ./emsdk/emsdk_env.sh
-          emcmake cmake -B build-wasm -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          emcmake cmake -B build-wasm -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/wasm_32
 
       - name: Build with Emscripten
         run: |

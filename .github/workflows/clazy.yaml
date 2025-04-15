@@ -2,37 +2,27 @@ name: Clazy Qt Analyzer
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  clazy:
-    name: Run Clazy (Qt Static Analyzer)
+  clazy-analysis:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clazy cmake ninja-build
+          sudo apt-get install -y clang cmake ninja-build qtbase5-dev qtdeclarative5-dev clazy
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: 6.8.3
-
-      - name: Configure CMake with Clazy and generate compile_commands.json
-        run: cmake -B build -DCMAKE_CXX_COMPILER=clazy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-        env:
-          CMAKE_PREFIX_PATH: ${{ env.Qt6_DIR }}
-
-      - name: Copy compile_commands.json
-        run: cp build/compile_commands.json .
-
-      - name: Run Clazy
+      - name: Configure project with Clazy
         run: |
-          clazy-standalone --project-path=. --quiet
+          cmake -B build -DCMAKE_CXX_COMPILER=clazy -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build project
+        run: |
+          cmake --build build

@@ -1,4 +1,4 @@
-name: Build WebAssembly
+name: Build for WebAssembly
 
 on:
   push:
@@ -6,12 +6,13 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.6.3
+
 jobs:
   build-wasm:
     runs-on: ubuntu-latest
-    env:
-      BUILD_TYPE: Release
-      QT_VERSION: 6.6.3
 
     steps:
       - name: Checkout code
@@ -40,5 +41,5 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -G Ninja
 
-      - name: Build project
+      - name: Build
         run: cmake --build build/wasm

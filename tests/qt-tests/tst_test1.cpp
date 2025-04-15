@@ -1,3 +1,4 @@
+//test
 #include <QCoreApplication>
 #include <QtTest>
 

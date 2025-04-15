@@ -8,15 +8,9 @@ exampledirs = examples
 imagedirs = docs/images
 headerdirs = src
 
-indexes = 
-    $QTDIR/doc/qt6/qtcore/qtcore.index
-    $QTDIR/doc/qt6/qtgui/qtgui.index
-    $QTDIR/doc/qt6/qtqml/qtqml.index
-    $QTDIR/doc/qt6/qtquick/qtquick.index
-
 language = C++
 autolink = true
-buildversion = "6.8.3"
+buildversion = "6.6.3"
 generateindex = true
 navigation = true
 

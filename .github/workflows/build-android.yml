@@ -10,20 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ANDROID_NDK: /usr/local/lib/android/sdk/ndk/25.1.8937393
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      QT_VERSION: 6.6.3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
 
       - name: Install dependencies
         run: |
@@ -33,16 +22,12 @@ jobs:
 
       - name: Install Qt for Android
         run: |
-          python3 -m aqt install-qt linux android $QT_VERSION android_armv7 --outputdir $HOME/Qt
+          python3 -m aqt install-qt linux android 6.6.3 android_armv7 --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
-            -DCMAKE_TOOLCHAIN_FILE=cmake/android.toolchain.cmake \
-            -DANDROID_ABI=armeabi-v7a \
-            -DANDROID_PLATFORM=android-21 \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/$QT_VERSION/android_armv7 \
-            -DCMAKE_BUILD_TYPE=Release
+          cmake --preset=android
 
       - name: Build project
-        run: cmake --build build
+        run: |
+          cmake --build build/android

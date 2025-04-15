@@ -1,4 +1,4 @@
-name: C++ Test Coverage (LLVM)
+name: C++ Test Coverage
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 env:
   BUILD_TYPE: Debug
   QT_VERSION: 6.8.3
-  ARCGIS_VERSION: 200.6
 
 jobs:
   coverage:
@@ -19,56 +18,41 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang llvm lcov ninja-build
+          sudo apt-get install -y clang gcovr lcov ninja-build
+          pip install aqtinstall
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '${{ env.QT_VERSION }}'
+      - name: Install Qt using aqt with mirror fallback
+        run: |
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
       - name: Configure CMake for coverage
         run: |
           cmake -B build \
-            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_CXX_COMPILER=clang++ \
             -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
             -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
 
-      - name: Build with coverage
-        run: |
-          cmake --build build
+      - name: Build project
+        run: cmake --build build
 
-      - name: Run tests and generate profraw
+      - name: Run tests and generate coverage data
         run: |
-          cd build/tests/cpp-tests
-          LLVM_PROFILE_FILE="CppTest.profraw" ./CppTest
+          cd build
+          ctest --output-on-failure
+          cd ..
 
-      - name: Generate .profdata
+      - name: Generate coverage report with gcovr
         run: |
-          cd build/tests/cpp-tests
-          llvm-profdata merge -output=CppTest.profdata CppTest.profraw
+          gcovr --root . --filter src/ --exclude tests/ --html --html-details -o coverage.html
 
-      - name: Show coverage in terminal
-        run: |
-          cd build/tests/cpp-tests
-          llvm-cov show ./CppTest -instr-profile=CppTest.profdata > coverage.txt
-          head -n 30 coverage.txt
-
-      - name: Generate HTML coverage report
-        run: |
-          cd build/tests/cpp-tests
-          llvm-cov export ./CppTest -instr-profile=CppTest.profdata -format=lcov > coverage.info
-          lcov --remove coverage.info '/usr/*' '*/build/*' --output-file coverage.info.cleaned --ignore-errors unused
-          genhtml coverage.info.cleaned --output-directory coverage_html
-
-      - name: Upload HTML coverage report
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: llvm-coverage-html
-          path: build/tests/cpp-tests/coverage_html
+          name: coverage-report
+          path: coverage.html

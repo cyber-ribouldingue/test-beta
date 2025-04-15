@@ -2,36 +2,35 @@ name: Clang-Tidy Linter
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
+
+env:
+  QT_VERSION: 6.8.3
 
 jobs:
-  clang-tidy:
-    name: Run clang-tidy
+  lint:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install required tools
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-tidy cmake ninja-build
+          sudo apt-get install -y clang cmake ninja-build
+          pip install aqtinstall
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: 6.8.3
+      - name: Install Qt with required modules from mirror
+        run: |
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat --base https://mirrors.dotsrc.org/qtproject/
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-
-      - name: Run clang-tidy
         run: |
-          cp build/compile_commands.json .
-          clang-tidy src/*.cpp -- -I./src -std=c++20
+          cmake -S . -B build -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
-      - name: Cleanup
-        run: rm -f compile_commands.json
+      - name: Run Clang-Tidy
+        run: |
+          clang-tidy -p build $(find . -name '*.cpp')

@@ -1,4 +1,4 @@
-//test
+// test
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 

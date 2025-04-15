@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  QT_VERSION: 6.8.3
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -23,13 +20,13 @@ jobs:
           sudo apt-get install -y clang cmake ninja-build
           pip install aqtinstall
 
-      - name: Install Qt with required modules from mirror
+      - name: Install Qt
         run: |
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat --base https://mirrors.dotsrc.org/qtproject/
+          python3 -m aqt install-qt linux desktop 6.8.3 --outputdir $HOME/Qt --modules qtbase qtdeclarative
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake -S . -B build -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/gcc_64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run Clang-Tidy
         run: |

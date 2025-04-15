@@ -9,11 +9,11 @@ on:
 env:
   BUILD_TYPE: Release
   QT_VERSION: 6.6.3
-  ANDROID_SDK_ROOT: $HOME/Android/Sdk
-  ANDROID_NDK_VERSION: 25.1.8937393
+  ANDROID_ABI: armeabi-v7a
+  ANDROID_PLATFORM: android-21
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,18 +26,19 @@ jobs:
           sudo apt-get install -y ninja-build
           pip install aqtinstall
 
-      - name: Install Android SDK and NDK
-        run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "ndk;${{ env.ANDROID_NDK_VERSION }}"
-
       - name: Install Qt for Android
         run: |
-          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android --outputdir $HOME/Qt
+          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} ${{ env.ANDROID_ABI }} --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
-            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android/lib/cmake/
-::contentReference[oaicite:5]{index=5}
- 
+          cmake -S . -B build/android \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ env.ANDROID_ABI }} \
+            -DANDROID_PLATFORM=${{ env.ANDROID_PLATFORM }} \
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/${{ env.ANDROID_ABI }} \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -G Ninja
+
+      - name: Build
+        run: cmake --build build/android

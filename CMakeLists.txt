@@ -1,20 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
-
-project(votre_projet VERSION 1.0 LANGUAGES CXX)
+project(test_beta LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Ajoutez le chemin d'installation de Qt6 à CMAKE_PREFIX_PATH
-# Remplacez le chemin par l'emplacement réel de votre installation Qt6
-set(CMAKE_PREFIX_PATH "/Users/runner/Qt/6.6.3/macos")
+# Définir le chemin d'installation de Qt6
+set(CMAKE_PREFIX_PATH "$ENV{HOME}/Qt/6.6.3/macos")
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Gui)
 
 qt_standard_project_setup()
 
-qt_add_executable(votre_projet
-    main.cpp
-)
+# Application principale
+add_executable(app_main src/main.cpp)
+target_link_libraries(app_main PRIVATE Qt6::Widgets Qt6::Quick Qt6::Gui)
 
-target_link_libraries(votre_projet PRIVATE Qt6::Widgets)
+# Tests QML
+add_executable(qml_tests tests/qml-tests/main.cpp)
+target_link_libraries(qml_tests PRIVATE Qt6::Widgets Qt6::Quick Qt6::Gui)
+

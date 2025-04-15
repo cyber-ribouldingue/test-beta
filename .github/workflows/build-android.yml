@@ -1,10 +1,16 @@
-name: Build Android App
+name: Build for Android
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.6.3
+  ANDROID_SDK_ROOT: $HOME/Android/Sdk
+  ANDROID_NDK_VERSION: 25.1.8937393
 
 jobs:
   build:
@@ -20,14 +26,18 @@ jobs:
           sudo apt-get install -y ninja-build
           pip install aqtinstall
 
+      - name: Install Android SDK and NDK
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "ndk;${{ env.ANDROID_NDK_VERSION }}"
+
       - name: Install Qt for Android
         run: |
-          python3 -m aqt install-qt linux android 6.6.3 android_armv7 --outputdir $HOME/Qt
+          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
-          cmake --preset=android
-
-      - name: Build project
-        run: |
-          cmake --build build/android
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android/lib/cmake/
+::contentReference[oaicite:5]{index=5}
+ 

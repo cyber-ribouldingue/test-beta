@@ -27,16 +27,11 @@ jobs:
 
       - name: Install Qt with required modules
         run: |
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat --base https://mirrors.aliyun.com/qt/
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
 
       - name: Configure CMake with coverage flags
         run: |
-          cmake -B build \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
-            -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
+          cmake -B build -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
 
       - name: Build project
         run: cmake --build build
@@ -49,10 +44,6 @@ jobs:
 
       - name: Generate coverage report with gcovr
         run: |
-          gcovr --root . --filter src/ --exclude tests/ --html --html-details -o coverage.html
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.html
+          gcovr --root . --filter src/
+::contentReference[oaicite:12]{index=12}
+ 

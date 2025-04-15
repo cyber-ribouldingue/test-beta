@@ -22,10 +22,13 @@ jobs:
 
       - name: Install Qt
         run: |
-          python3 -m aqt install-qt linux desktop 6.8.3 --outputdir $HOME/Qt --modules qtbase qtdeclarative
+          python3 -m aqt install-qt linux desktop 6.6.3 --outputdir $HOME/Qt \
+            --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/gcc_64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -S . -B build \
+                 -DCMAKE_PREFIX_PATH=$HOME/Qt/6.6.3/gcc_64 \
+                 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run Clang-Tidy
         run: clang-tidy -p build $(find . -name '*.cpp')

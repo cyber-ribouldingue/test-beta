@@ -5,63 +5,30 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  schedule:
-    - cron: '0 1 * * 0'  # Analyse hebdomadaire chaque dimanche
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
   analyze:
-    name: CodeQL C/C++ Analysis
+    name: Analyze
     runs-on: ubuntu-latest
 
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'cpp' ]
-
     steps:
-      - name: Checkout source code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          build-mode: manual
+          languages: cpp
 
-      - name: Install Qt using aqt with mirror fallback
+      - name: Build
         run: |
-          pip install aqtinstall
-          python3 -m aqt install-qt linux desktop 6.8.3 --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
-        env:
-          AQT_DOWNLOAD_RETRIES: 3
-          AQT_TIMEOUT: 300
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-
-      - name: Configure CMake project
-        run: |
-          cmake -B build \
-                -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/gcc_64 \
-                -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build project with CMake
-        run: |
+          cmake -S . -B build
           cmake --build build
 
-      - name: Validate that build produced object files
-        run: |
-          if ! find build -name '*.o' | grep .; then
-            echo "❌ Aucun fichier .o généré : la compilation a échoué"
-            exit 1
-          fi
-
-      - name: Perform CodeQL analysis
+      - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

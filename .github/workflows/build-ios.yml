@@ -1,4 +1,4 @@
-name: Build iOS App
+name: Build for iOS
 
 on:
   push:
@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.6.3
+
 jobs:
-  build:
+  build-ios:
     runs-on: macos-latest
 
     steps:
@@ -21,12 +25,15 @@ jobs:
 
       - name: Install Qt for iOS
         run: |
-          python3 -m aqt install-qt mac desktop 6.6.3 ios --outputdir $HOME/Qt
+          python3 -m aqt install-qt mac desktop ${{ env.QT_VERSION }} ios --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
-          cmake --preset=ios
+          cmake -S . -B build/ios \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/ios.toolchain.cmake \
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/ios \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -G Ninja
 
-      - name: Build project
-        run: |
-          cmake --build build/ios
+      - name: Build
+        run: cmake --build build/ios

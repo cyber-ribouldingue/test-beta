@@ -29,8 +29,7 @@ jobs:
 
       - name: Install Qt
         run: |
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt \
-            --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} gcc_64 --outputdir $HOME/Qt
 
       - name: Configure CMake for coverage
         run: |

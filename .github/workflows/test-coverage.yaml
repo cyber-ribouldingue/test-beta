@@ -8,7 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Debug
-  QT_VERSION: 6.8.3
+  QT_VERSION: 6.6.3
 
 jobs:
   coverage:
@@ -29,7 +29,8 @@ jobs:
 
       - name: Install Qt
         run: |
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt \
+            --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
 
       - name: Configure CMake for coverage
         run: |

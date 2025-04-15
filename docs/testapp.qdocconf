@@ -16,7 +16,7 @@ indexes =
 
 language = C++
 autolink = true
-buildversion = 6.8.3
+buildversion = "6.8.3"
 generateindex = true
 navigation = true
 

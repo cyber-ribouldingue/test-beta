@@ -1,4 +1,4 @@
-name: C++ Test Coverage
+name: C++ Test Coverage and SonarCloud Analysis
 
 on:
   push:
@@ -9,15 +9,18 @@ on:
 env:
   BUILD_TYPE: Debug
   QT_VERSION: 6.8.3
+  BUILD_WRAPPER_OUT_DIR: build_wrapper_output
 
 jobs:
   coverage:
-    name: Coverage (Linux)
+    name: Coverage & SonarCloud
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Requis pour SonarCloud
 
       - name: Install dependencies
         run: |
@@ -29,7 +32,12 @@ jobs:
         run: |
           python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
 
-      - name: Configure CMake for coverage
+      - name: Download SonarCloud Build Wrapper
+        run: |
+          curl -sSLo build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip build-wrapper-linux-x86.zip
+
+      - name: Configure CMake with coverage flags
         run: |
           cmake -B build \
             -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64 \
@@ -38,10 +46,11 @@ jobs:
             -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
             -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
 
-      - name: Build project
-        run: cmake --build build
+      - name: Build project with SonarCloud build-wrapper
+        run: |
+          ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build
 
-      - name: Run tests and generate coverage data
+      - name: Run tests
         run: |
           cd build
           ctest --output-on-failure
@@ -49,10 +58,25 @@ jobs:
 
       - name: Generate coverage report with gcovr
         run: |
-          gcovr --root . --filter src/ --exclude tests/ --html --html-details -o coverage.html
+          gcovr --root . --filter src/ --exclude tests/ --xml -o coverage.xml
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          name: coverage-report
-          path: coverage.html
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Run SonarCloud analysis
+        uses: SonarSource/sonarqube-scan-action@v1
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=src
+            -Dsonar.tests=tests
+            -Dsonar.cfamily.build-wrapper-output=${{ env.BUILD_WRAPPER_OUT_DIR }}
+            -Dsonar.cfamily.llvm-cov.reportPath=coverage.xml
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

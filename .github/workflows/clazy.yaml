@@ -25,11 +25,14 @@ jobs:
         with:
           version: 6.8.3
 
-      - name: Configure CMake with Clazy
-        run: |
-          cmake -B build \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_CXX_COMPILER=clazy
+      - name: Configure CMake with Clazy and generate compile_commands.json
+        run: cmake -B build -DCMAKE_CXX_COMPILER=clazy -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        env:
+          CMAKE_PREFIX_PATH: ${{ env.Qt6_DIR }}
 
-      - name: Run build (to trigger Clazy warnings)
-        run: cmake --build build
+      - name: Copy compile_commands.json
+        run: cp build/compile_commands.json .
+
+      - name: Run Clazy
+        run: |
+          clazy-standalone --project-path=. --quiet

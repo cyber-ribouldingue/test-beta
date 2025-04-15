@@ -17,11 +17,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build qtbase5-dev qtdeclarative5-dev clazy
+          sudo apt-get install -y clang cmake ninja-build clazy
+          pip install aqtinstall
+
+      - name: Install Qt
+        run: |
+          python3 -m aqt install-qt linux desktop 6.8.3 --outputdir $HOME/Qt --modules qtbase qtdeclarative
 
       - name: Configure project with Clazy
         run: |
-          cmake -B build -DCMAKE_CXX_COMPILER=clazy -DCMAKE_BUILD_TYPE=Debug
+          cmake -B build -DCMAKE_CXX_COMPILER=clazy -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/gcc_64
 
       - name: Build project
         run: |

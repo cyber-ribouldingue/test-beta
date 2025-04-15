@@ -36,8 +36,7 @@ jobs:
       - name: Install Qt
         run: |
           pip install aqtinstall
-          python3 -m aqt install-qt linux desktop 6.6.3 --outputdir $HOME/Qt \
-            --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
+          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 --outputdir $HOME/Qt
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build

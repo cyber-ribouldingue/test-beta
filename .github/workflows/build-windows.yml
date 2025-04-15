@@ -1,0 +1,38 @@
+name: Build for Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.6.3
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          choco install ninja
+          pip install aqtinstall
+
+      - name: Install Qt
+        run: |
+          python -m aqt install-qt windows desktop ${{ env.QT_VERSION }} win64_msvc2019_64 --outputdir $HOME/Qt
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build `
+            -DCMAKE_PREFIX_PATH="$HOME/Qt/${{ env.QT_VERSION }}/msvc2019_64" `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -G Ninja
+
+      - name: Build
+        run: cmake --build build

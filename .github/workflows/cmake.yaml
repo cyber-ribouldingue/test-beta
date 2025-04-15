@@ -10,11 +10,6 @@ env:
   BUILD_TYPE: Release
   QT_VERSION: 6.8.3
 
-permissions:
-  contents: write
-  actions: read
-  security-events: write
-
 jobs:
   build-desktop:
     name: Build (Desktop)
@@ -27,23 +22,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Qt using aqt with fallback (Linux only)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install Qt
         run: |
           pip install aqtinstall
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_PREFIX_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64
-        if: matrix.os == 'ubuntu-latest'
 
       - name: Build
         run: cmake --build build --config ${{ env.BUILD_TYPE }}
-        if: matrix.os == 'ubuntu-latest'
 
       - name: Run tests
         run: ctest --test-dir build
-        if: matrix.os == 'ubuntu-latest'
 
   build-android:
     name: Build Android APK
@@ -65,17 +56,16 @@ jobs:
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses
 
-      - name: Install Qt (Android)
+      - name: Install Qt
         run: |
           pip install aqtinstall
-          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt
+          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} --outputdir $HOME/Qt
 
       - name: Set execute permissions for Gradle wrapper
-        run: |
-          chmod +x ./config/android/gradlew
-          chmod +x ./config/android/gradlew.bat
+        run: chmod +x ./config/android/gradlew
 
-      - name: Build APK with Gradle (debug mode)
+      - name: Build APK with Gradle
         working-directory: ./config/android
         run: ./gradlew assembleDebug --info --stacktrace --no-daemon
 
@@ -96,7 +86,7 @@ jobs:
       - name: Install Qt
         run: |
           pip3 install aqtinstall
-          python3 -m aqt install-qt mac desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
+          python3 -m aqt install-qt mac desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt
 
       - name: Configure CMake
         run: |
@@ -140,7 +130,7 @@ jobs:
       - name: Install Qt (WASM)
         run: |
           pip install aqtinstall
-          python3 -m aqt install-qt linux wasm_32 ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
+          python3 -m aqt install-qt linux wasm_32 ${{ env.QT_VERSION }} --outputdir $HOME/Qt
 
       - name: Configure CMake with Emscripten
         run: |

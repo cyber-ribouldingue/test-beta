@@ -1,4 +1,4 @@
-name: C++ Test Coverage and SonarCloud Analysis
+name: C++ Test Coverage
 
 on:
   push:
@@ -9,18 +9,15 @@ on:
 env:
   BUILD_TYPE: Debug
   QT_VERSION: 6.8.3
-  BUILD_WRAPPER_OUT_DIR: build_wrapper_output
 
 jobs:
   coverage:
-    name: Coverage & SonarCloud
+    name: Coverage (Linux)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Requis pour SonarCloud
 
       - name: Install dependencies
         run: |
@@ -28,14 +25,9 @@ jobs:
           sudo apt-get install -y clang gcovr lcov ninja-build
           pip install aqtinstall
 
-      - name: Install Qt using aqt with mirror fallback
+      - name: Install Qt with required modules
         run: |
-          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --base https://mirrors.aliyun.com/qt/
-
-      - name: Download SonarCloud Build Wrapper
-        run: |
-          curl -sSLo build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-          unzip build-wrapper-linux-x86.zip
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} --outputdir $HOME/Qt --modules qtbase qtdeclarative qtshadertools qtquick3d qt5compat --base https://mirrors.aliyun.com/qt/
 
       - name: Configure CMake with coverage flags
         run: |
@@ -46,9 +38,8 @@ jobs:
             -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
             -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
 
-      - name: Build project with SonarCloud build-wrapper
-        run: |
-          ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build
+      - name: Build project
+        run: cmake --build build
 
       - name: Run tests
         run: |
@@ -58,25 +49,10 @@ jobs:
 
       - name: Generate coverage report with gcovr
         run: |
-          gcovr --root . --filter src/ --exclude tests/ --xml -o coverage.xml
+          gcovr --root . --filter src/ --exclude tests/ --html --html-details -o coverage.html
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          fail_ci_if_error: true
-          verbose: true
-
-      - name: Run SonarCloud analysis
-        uses: SonarSource/sonarqube-scan-action@v1
-        with:
-          args: >
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.sources=src
-            -Dsonar.tests=tests
-            -Dsonar.cfamily.build-wrapper-output=${{ env.BUILD_WRAPPER_OUT_DIR }}
-            -Dsonar.cfamily.llvm-cov.reportPath=coverage.xml
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          name: coverage-report
+          path: coverage.html

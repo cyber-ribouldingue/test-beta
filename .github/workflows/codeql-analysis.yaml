@@ -5,30 +5,47 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
-permissions:
-  actions: read
-  contents: read
-  security-events: write
+  schedule:
+    - cron: '0 1 * * 0'  # Analyse hebdomadaire chaque dimanche
 
 jobs:
   analyze:
-    name: Analyze
+    name: CodeQL C/C++ Analysis
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+
     steps:
-      - name: Checkout repository
+      - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: cpp
+          languages: ${{ matrix.language }}
+          build-mode: manual
 
-      - name: Build
+      - name: Install Qt
         run: |
-          cmake -S . -B build
-          cmake --build build
+          pip install aqtinstall
+          python3 -m aqt install-qt linux desktop 6.8.3 --outputdir $HOME/Qt --modules qtbase qtdeclarative
 
-      - name: Perform CodeQL Analysis
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure project
+        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/gcc_64
+
+      - name: Build project
+        run: cmake --build build
+
+      - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3

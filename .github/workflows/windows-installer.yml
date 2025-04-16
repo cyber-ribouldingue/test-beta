@@ -1,4 +1,4 @@
-name: Build Windows MSI Installer
+name: Build Windows Installer
 
 on:
   push:
@@ -7,8 +7,10 @@ on:
 jobs:
   build-msi:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
       - name: Installer WiX Toolset
         run: choco install wix -y
@@ -18,12 +20,12 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      - name: Créer l'installateur MSI
+      - name: Créer le fichier .msi
         run: |
-          candle installer.wxs
+          candle installer/windows/installer.wxs
           light installer.wixobj -o TestAppInstaller.msi
 
-      - name: Télécharger l'installateur
+      - name: Upload du fichier MSI
         uses: actions/upload-artifact@v3
         with:
           name: windows-installer

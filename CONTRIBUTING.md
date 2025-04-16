@@ -1,8 +1,17 @@
 # 🤝 Contribuer au projet TestApp
 
-Bienvenue ! Merci de vouloir contribuer à **TestApp**. Ce guide explique comment participer de manière efficace.
+## 👋 Bienvenue aux nouveaux contributeurs
 
----
+Ce projet accueille avec plaisir les nouveaux développeurs, étudiants ou curieux.  
+Aucune contribution n’est trop petite : corriger une faute, améliorer un test, documenter une ligne…
+
+Voici comment démarrer :
+
+1. Lisez le [README.md](README.md) pour comprendre la structure du projet.
+2. Consultez les guides dans `docs/` pour installer localement TestApp.
+3. Proposez une amélioration en ouvrant une **Issue** ou en forkant le dépôt.
+4. Consultez `HACKING.md` pour mieux comprendre le fonctionnement interne.
+
 
 ## 🧱 Structure du dépôt
 

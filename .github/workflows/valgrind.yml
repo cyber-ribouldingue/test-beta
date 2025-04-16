@@ -1,0 +1,20 @@
+name: Valgrind Analysis
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  valgrind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+      - name: Compiler l'application
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build
+      - name: Exécuter Valgrind
+        run: |
+          valgrind --leak-check=full ./build/your_executable

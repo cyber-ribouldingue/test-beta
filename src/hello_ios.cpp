@@ -1,5 +1,5 @@
-// Fichier test pour débloquer la compilation iOS
+// src/hello_ios.cpp
 int dummy_ios_function()
 {
-    return 42; // valeur arbitraire pour valider la compilation
+    return 42;
 }

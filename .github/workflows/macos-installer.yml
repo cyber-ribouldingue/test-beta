@@ -7,20 +7,27 @@ on:
 jobs:
   build-dmg:
     runs-on: macos-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compiler l'application
+      - name: Compiler l’application
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      - name: Créer le fichier .dmg
+      - name: Créer le .app si nécessaire
         run: |
-          hdiutil create -volname TestApp -srcfolder build/Release -ov -format UDZO TestApp.dmg
+          mkdir -p build/TestApp.app/Contents/MacOS
+          cp build/TestApp build/TestApp.app/Contents/MacOS/TestApp
 
-      - name: Télécharger le fichier .dmg
+      - name: Générer le .dmg
+        run: |
+          chmod +x installer/macos/create-dmg.sh
+          ./installer/macos/create-dmg.sh
+
+      - name: Upload du .dmg
         uses: actions/upload-artifact@v3
         with:
           name: macos-installer
-          path: TestApp.dmg
+          path: TestApp_1.0.0.dmg

@@ -13,6 +13,9 @@ TestApp
 📋 Présentation
 TestApp est une application multiplateforme développée avec Qt 6.8.3, C++20 et QML. Elle est conçue pour être intuitive, simple à utiliser et compatible avec les plateformes desktop, mobile (Android/iOS) et Web (WASM).​
 
+📥 [Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
+
+
 🧱 Structure du projet
 bash
 Copier

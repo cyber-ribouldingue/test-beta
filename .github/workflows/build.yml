@@ -1,47 +1,79 @@
-name: Build Qt Application
+name: Build multiplateforme
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
+    name: Compilation sur ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+    timeout-minutes: 25
+
     steps:
-      - name: Checkout source
+      - name: Checkout du dépôt
         uses: actions/checkout@v4
-        
-      - name: ✅ Vérification des dépendances
+
+      # Linux : installer dépendances système
+      - name: Installer les dépendances Linux
+        if: runner.os == 'Linux'
         run: |
-         for cmd in cmake ctest ninja; do
-          if ! command -v $cmd &> /dev/null; then
-           echo "❌ $cmd is not installed"; exit 1;
-         fi
-         done 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+          sudo apt-get update
+          sudo apt-get install -y libxcb-xkb-dev
+
+      # Vérification des dépendances : bash
+      - name: Vérification des dépendances (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "Vérification des outils requis..."
+          for cmd in cmake ninja ctest; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd est manquant"
+              exit 1
+            fi
+            echo "✅ $cmd trouvé"
+          done
+
+      # Vérification des dépendances : PowerShell Windows
+      - name: Vérification des dépendances (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tools = @("cmake", "ninja", "ctest")
+          foreach ($cmd in $tools) {
+            if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+              Write-Host "❌ $cmd est manquant"
+              exit 1
+            } else {
+              Write-Host "✅ $cmd trouvé"
+            }
+          }
+
+      # Installation de Qt (Linux et macOS uniquement)
+      - name: Installer Qt via install-qt-action (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: jurplel/install-qt-action@v3
         with:
-          version: '6.8.3'
-          host: ${{ matrix.os == 'macos-latest' && 'mac' || (matrix.os == 'windows-latest' && 'windows' || 'linux') }}
-          target: desktop
-          arch: ${{ matrix.os == 'windows-latest' && 'win64_msvc2019_64' || 'gcc_64' }}
+          version: 6.8.3
+          modules: "qtbase qtdeclarative qtquickcontrols2"
+          cache: true
+          retries: 3
 
-      - name: Configure with CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+      # Configuration CMake
+      - name: Configurer le projet
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      # Compilation
+      - name: Compiler le projet
         run: cmake --build build --parallel
 
-  finalize:
-    name: ✅ Tous les builds ont terminé
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "✅ Compilation terminée sur toutes les plateformes."
+      # Tests
+      - name: Exécuter les tests
+        run: ctest --test-dir build --output-on-failure --parallel $(nproc || 2)

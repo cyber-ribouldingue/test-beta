@@ -3,39 +3,37 @@ name: Build Linux DEB Package
 on:
   push:
     branches: [main]
+  pull_request:
 
 jobs:
   build-deb:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Installer les dépendances
+      - name: Installer dépendances
         run: sudo apt-get update && sudo apt-get install -y dpkg-dev
 
       - name: Compiler l'application
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release
+          cmake --build build
 
-      - name: Préparer le paquet DEB
+      - name: Préparer la structure du paquet
         run: |
-          mkdir -p package/usr/local/bin
-          cp build/your_executable package/usr/local/bin/
-          mkdir -p package/DEBIAN
-          echo "Package: testapp
-Version: 1.0.0
-Section: base
-Priority: optional
-Architecture: amd64
-Maintainer: Your Name <you@example.com>
-Description: TestApp description" > package/DEBIAN/control
+          mkdir -p installer/linux/usr/local/bin
+          mkdir -p installer/linux/usr/share/applications
+          mkdir -p installer/linux/usr/share/icons/hicolor/64x64/apps
+          cp build/TestApp installer/linux/usr/local/bin/
+          cp installer/linux/testapp.desktop installer/linux/usr/share/applications/
+          cp installer/linux/testapp.png installer/linux/usr/share/icons/hicolor/64x64/apps/testapp.png
 
-      - name: Créer le paquet DEB
-        run: dpkg-deb --build package TestApp.deb
+      - name: Construire le .deb
+        run: dpkg-deb --build installer/linux testapp_1.0.0_amd64.deb
 
-      - name: Télécharger le paquet DEB
+      - name: Upload de l’installateur
         uses: actions/upload-artifact@v3
         with:
-          name: linux-installer
-          path: TestApp.deb
+          name: testapp-debian-installer
+          path: testapp_1.0.0_amd64.deb

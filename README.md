@@ -15,6 +15,7 @@ TestApp est une application multiplateforme développée avec Qt 6.8.3, C++20 et
  -[Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
  -[Guide d'installation Windows (.msi)](docs/README-installation-windows.md)
  -[Guide d'installation Android (.apk)](docs/README-installation-android.md)
+ -[Guide d'installation Web (WebAssembly)](docs/README-installation-web.md)
 
  Structure du projet
 bash

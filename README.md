@@ -1,8 +1,9 @@
--![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![Tests](https://github.com/cyber-ribouldingue/test-beta/actions/workflows/tests.yaml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![License](https://img.shields.io/github/license/cyber-ribouldingue/test-beta)
+[![Releases](https://img.shields.io/github/v/release/cyber-ribouldingue/test-beta)](https://github.com/cyber-ribouldingue/test-beta/releases)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fcyber-ribouldingue.github.io%2Ftest-beta)](https://cyber-ribouldingue.github.io/test-beta/)
 
--![Statut des tests](https://github.com/cyber-ribouldingue/tests-beta/actions/workflows/tests.yml/badge.svg)
---![Build Status](https://github.com/<utilisateur>/TestApp/actions/workflows/ci.yml/badge.svg)![Coverage Status]-(https://github.com
-::contentReference[oaicite:25]{index=25}
  
 
 TestApp

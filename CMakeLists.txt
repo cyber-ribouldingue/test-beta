@@ -67,6 +67,13 @@ target_compile_definitions(TestApp
 if(TARGET Qt6::QuickTest AND TARGET Qt6::Qml)
     enable_testing()
 
+
+# Ajout des tests C++
+add_subdirectory(tests/cpp-tests)
+
+# Ajout des tests QML
+add_subdirectory(tests/qml-tests)
+
     # Test C++ avec Qt Test
     add_executable(CppTest
         tests/cpp-tests/test_main.cpp

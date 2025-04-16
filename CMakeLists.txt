@@ -1,20 +1,48 @@
-cmake_minimum_required(VERSION 3.16)
-project(test_beta LANGUAGES CXX)
+# CMakeLists.txt — Fichier principal du projet
+cmake_minimum_required(VERSION 3.21)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(TestApp VERSION 0.1 LANGUAGES CXX)
 
-# Définir le chemin d'installation de Qt6
-set(CMAKE_PREFIX_PATH "$ENV{HOME}/Qt/6.6.3/macos")
+# Configuration C++
+include(config/cpp.cmake)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Gui QuickTest)
+# Détection de la version Qt (centralisée)
+include(config/qt-version.cmake)
+include(config/qt-modules.cmake)
+include(config/qt.cmake)
 
-qt_standard_project_setup()
+# Déclaration de l'application principale
+qt_add_executable(TestApp
+    src/main.cpp
+)
 
-# Application principale
-add_executable(app_main src/main.cpp)
-target_link_libraries(app_main PRIVATE Qt6::Widgets Qt6::Quick Qt6::Gui)
+qt_add_qml_module(TestApp
+    URI TestApp
+    VERSION 1.0
+    QML_FILES
+        qml/Main.qml
+)
 
-# Tests QML
-add_executable(qml_tests tests/qml-tests/main.cpp)
-target_link_libraries(qml_tests PRIVATE Qt6::Widgets Qt6::Quick Qt6::Gui Qt6::QuickTest)
+set_target_properties(TestApp PROPERTIES
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+target_link_libraries(TestApp PRIVATE ${QT_REQUIRED_MODULES})
+
+# Installation
+include(GNUInstallDirs)
+install(TARGETS TestApp
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Modules secondaires
+add_library(DummyIOS STATIC src/hello_ios.cpp)
+add_library(CodeQLTarget STATIC src/dummy_codeql.cpp)
+
+# Tests
+enable_testing()
+add_subdirectory(tests/cpp-tests)
+add_subdirectory(tests/qt-tests)
+add_subdirectory(tests/qml-tests)

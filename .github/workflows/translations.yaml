@@ -2,32 +2,27 @@ name: Qt Translations
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+    paths:
+      - '**/*.ts'
+      - '**/*.qml'
+      - '**/*.cpp'
+      - '**/*.h'
 
 jobs:
   translations:
-    name: Generate Qt Translation Files
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Qt tools
+      - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.8.3
+          version: '6.8.3'
 
-      - name: Create translations folder if missing
-        run: mkdir -p translations
-
-      - name: Extract translatable strings (.ts)
+      - name: Update .ts files
         run: |
-          lupdate src/ qml/ -ts translations/app_fr.ts
+          lupdate src/ qml/ -ts translations/fr.ts
 
-      - name: Compile translations (.qm)
+      - name: Compile .ts files
         run: |
-          lrelease translations/app_fr.ts
+          lrelease translations/fr.ts -qm translations/fr.qm

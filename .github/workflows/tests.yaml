@@ -1,4 +1,4 @@
-name: CI - Build & Test
+name: Tests
 
 on:
   push:
@@ -7,52 +7,31 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Vérification du code source
-        uses: actions/checkout@v3
+      - name: Vérification des dépendances
+        run: |
+          for cmd in cmake ctest ninja; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "$cmd n'est pas installé."; exit 1;
+            fi
+          done
 
-      - name: Installation de Qt
-        uses: jurplel/install-qt-action@v4
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compilation
+        run: cmake --build build --config Release
+
+      - name: Exécution des tests en parallèle
+        run: ctest --test-dir build --output-on-failure --parallel $(nproc)
+
+      - name: Publication des résultats des tests
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          version: '6.8.*'
-          modules: 'qtdeclarative qtquickcontrols2 qtquicktest'
-          install-deps: true
-
-      - name: Configuration du projet
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Compilation du projet
-        run: |
-          cmake --build build --parallel
-
-  tests:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test_target: [CppTest, QmlTest]
-    steps:
-      - name: Vérification du code source
-        uses: actions/checkout@v3
-
-      - name: Installation de Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.*'
-          modules: 'qtdeclarative qtquickcontrols2 qtquicktest'
-          install-deps: true
-
-      - name: Configuration du projet
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Compilation du projet
-        run: |
-          cmake --build build --target ${{ matrix.test_target }}
-
-      - name: Exécution des tests
-        run: |
-          ctest --test-dir build --output-on-failure -R ${{ matrix.test_target }}
+          files: build/Testing/**/*.xml

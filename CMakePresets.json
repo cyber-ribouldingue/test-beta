@@ -2,62 +2,92 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 21
+    "minor": 16,
+    "patch": 0
   },
   "configurePresets": [
     {
       "name": "default",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "default",
+      "description": "Linux native release build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "linux",
+      "name": "linux-coverage",
       "inherits": "default",
+      "description": "Linux build avec couverture",
       "cacheVariables": {
-        "CMAKE_SYSTEM_NAME": "Linux"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "--coverage"
       }
     },
     {
-      "name": "windows",
-      "inherits": "default",
+      "name": "android-debug",
+      "generator": "Ninja",
+      "description": "Build Android",
+      "binaryDir": "${sourceDir}/build-android",
       "cacheVariables": {
-        "CMAKE_SYSTEM_NAME": "Windows"
-      }
-    },
-    {
-      "name": "macos",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_SYSTEM_NAME": "Darwin"
-      }
-    },
-    {
-      "name": "android",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/android/gradle/cmake/android.toolchain.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "$ENV{ANDROID_NDK}/build/cmake/android.toolchain.cmake",
         "ANDROID_ABI": "arm64-v8a",
-        "ANDROID_PLATFORM": "android-28"
+        "ANDROID_PLATFORM": "android-21",
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
       "name": "ios",
-      "inherits": "default",
+      "generator": "Xcode",
+      "description": "Build pour iOS",
+      "binaryDir": "${sourceDir}/build-ios",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/ios/toolchain/ios.toolchain.cmake",
         "CMAKE_SYSTEM_NAME": "iOS"
       }
     },
     {
-      "name": "wasm",
-      "inherits": "default",
+      "name": "web",
+      "generator": "Ninja",
+      "description": "Build WebAssembly via emscripten",
+      "binaryDir": "${sourceDir}/build-web",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/wasm/toolchain/wasm.toolchain.cmake",
-        "CMAKE_SYSTEM_NAME": "Emscripten"
+        "CMAKE_TOOLCHAIN_FILE": "$ENV{EMSCRIPTEN}/cmake/Modules/Platform/Emscripten.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "build-android-debug",
+      "configurePreset": "android-debug"
+    },
+    {
+      "name": "build-ios",
+      "configurePreset": "ios"
+    },
+    {
+      "name": "build-web",
+      "configurePreset": "web"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test",
+      "configurePreset": "linux-release",
+      "output": {
+        "outputOnFailure": true
       }
     }
   ]

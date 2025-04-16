@@ -1,28 +1,24 @@
-# C++ objects and libs
-*.slo
-*.lo
+# === Fichiers et répertoires générés par la compilation ===
+build/
+output/
+dist/
 *.o
-*.a
-*.la
-*.lai
+*.obj
 *.so
 *.so.*
 *.dll
 *.dylib
+*.a
+*.lib
+*.exe
+*.out
+*.app
+*.apk
+*.wasm
+*.html
+*.js
 
-# build dir
-build/
-
-# Qt-es
-object_script.*.Release
-object_script.*.Debug
-*_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
+# === Fichiers générés par Qt ===
 *.moc
 moc_*.cpp
 moc_*.h
@@ -30,28 +26,52 @@ qrc_*.cpp
 ui_*.h
 *.qmlc
 *.jsc
-Makefile*
-*build-*
-*.qm
+*.qrc
 *.prl
-
-# Qt unit tests
-target_wrapper.*
-
-# QtCreator
-*.autosave
-
-# QtCreator Qml
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
 *.qmlproject.user
 *.qmlproject.user.*
-
-# QtCreator CMake
+*.autosave
+*.qm
+*.ts
+*.qmake.stash
+*.qmake.cache
+Makefile*
 CMakeLists.txt.user*
-
-# QtCreator 4.8< compilation database
 compile_commands.json
+object_script.*.Release
+object_script.*.Debug
+*_plugin_import.cpp
+target_wrapper.*
 
-# QtCreator local machine specific files for imported projects
-*creator.user*
+# === Fichiers temporaires et de sauvegarde ===
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+*.~*
 
-*_qmlcache.qrc
+# === Fichiers spécifiques aux IDE ===
+.idea/
+.vscode/
+.vs/
+*.user
+*.user.*
+*.creator.user*
+*.creator.user.*
+*.pro.user
+*.pro.user.*
+
+# === Fichiers spécifiques aux systèmes d'exploitation ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Répertoires de tests et de sauvegarde ===
+debug/
+release/
+saves/

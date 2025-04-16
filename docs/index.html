@@ -11,19 +11,33 @@
       text-align: center;
       margin-top: 3em;
     }
+    #loader {
+      font-size: 1.2em;
+      color: #555;
+      margin-bottom: 1em;
+    }
+    #version {
+      margin: 1em;
+      font-size: 0.95em;
+      color: #888;
+    }
     #log {
       margin: 2em auto;
       padding: 1em;
       border: 1px solid #ccc;
-      width: 80%;
+      width: 90%;
+      max-width: 800px;
       background: #f9f9f9;
       text-align: left;
       font-family: monospace;
       white-space: pre-wrap;
+      height: 200px;
+      overflow-y: auto;
     }
-    #loader {
-      font-size: 1.2em;
-      color: #555;
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -31,43 +45,48 @@
 
 <h1>TestApp WebAssembly</h1>
 
+<div id="version">Version : chargement...</div>
 <div id="loader">Chargement de l'application...</div>
-
+<button onclick="location.reload()">Recharger l'application</button>
 <div id="log"></div>
 
 <noscript>
-  <p style="color: red;">JavaScript est désactivé dans votre navigateur. Cette application ne peut pas fonctionner.</p>
+  <p style="color: red;">JavaScript est désactivé. Cette application nécessite JavaScript et WebAssembly.</p>
 </noscript>
 
 <script>
-  // Affichage console intégré à la page
   const logDiv = document.getElementById("log");
   const loader = document.getElementById("loader");
+  const versionDiv = document.getElementById("version");
 
+  // Logger dans la page
   function log(msg) {
     logDiv.textContent += msg + "\\n";
+    logDiv.scrollTop = logDiv.scrollHeight;
   }
 
-  // Redirection console.log vers le DOM
+  // Rediriger console.log vers l'écran
   console.log = function (...args) {
     const msg = args.join(" ");
     log(msg);
   };
 
-  // Configuration du module Emscripten
+  // Afficher la version depuis un fichier texte VERSION
+  fetch("VERSION")
+    .then(resp => resp.text())
+    .then(data => versionDiv.textContent = "Version : " + data.trim())
+    .catch(() => versionDiv.textContent = "Version : inconnue");
+
+  // Module Emscripten
   var Module = {
     onRuntimeInitialized: function () {
-      loader.textContent = "Application lancée avec succès.";
-      log("Initialisation WebAssembly terminée.");
+      loader.textContent = "Application prête.";
+      log("Runtime WebAssembly initialisé.");
     }
   };
 </script>
 
 <script src="TestApp.js"></script>
-
-<noscript>
-  <p style="color: red;">Votre navigateur ne prend pas en charge WebAssembly ou JavaScript est désactivé.</p>
-</noscript>
 
 </body>
 </html>

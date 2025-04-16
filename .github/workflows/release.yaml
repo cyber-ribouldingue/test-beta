@@ -1,29 +1,43 @@
-name: Create Release
+name: 📦 Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'  # Exemple : v1.0.0, v2.1.3
 
 jobs:
   release:
+    name: Create GitHub Release avec artefacts
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
+      - name: Extraire la version depuis le tag
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: Configure & Build
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build
-
-      - name: Package
-        run: cpack --config build/CPackConfig.cmake
-
-      - name: Upload binaries
+      - name: Créer la release GitHub
         uses: softprops/action-gh-release@v1
         with:
-          files: build/*.zip
+          name: "Version ${{ env.VERSION }}"
+          tag_name: "${{ env.VERSION }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Joindre les artefacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            testapp_*.deb
+            TestAppInstaller.msi
+            TestApp_*.dmg
+            platform/android/app/build/outputs/apk/debug/app-debug.apk
+            web-dist/*.wasm
+            web-dist/*.js
+            web-dist/index.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

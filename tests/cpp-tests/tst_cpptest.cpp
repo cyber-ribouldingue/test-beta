@@ -1,32 +1,27 @@
+// tests/cpp-tests/tst_cpptest.cpp
 
 #include <QtTest>
-
-// add necessary includes here
 
 class CppTest : public QObject
 {
     Q_OBJECT
 
-public:
-    CppTest();
-    ~CppTest();
-
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-    void test_case1();
+    void addition();
+    void stringEquality();
 };
 
-CppTest::CppTest() { }
+void CppTest::addition()
+{
+    QCOMPARE(2 + 3, 5);
+}
 
-CppTest::~CppTest() { }
-
-void CppTest::initTestCase() { }
-
-void CppTest::cleanupTestCase() { }
-
-void CppTest::test_case1() { }
+void CppTest::stringEquality()
+{
+    QString s1 = "test";
+    QString s2 = "test";
+    QCOMPARE(s1, s2);
+}
 
 QTEST_APPLESS_MAIN(CppTest)
-
 #include "tst_cpptest.moc"

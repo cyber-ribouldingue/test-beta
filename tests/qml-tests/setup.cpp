@@ -1,13 +1,9 @@
+// setup.cpp
 #include "setup.h"
+#include <QDebug>
 
-void Setup::applicationAvailable() {
-    // Custom app setup if needed
-}
-
-void Setup::qmlEngineAvailable(QQmlEngine *engine) {
-    // Add paths, register QML types, etc.
-}
-
-void Setup::cleanupTestCase() {
-    // Final cleanup
+void Setup::qmlEngineAvailable(QQmlEngine *engine)
+{
+    qDebug() << "QML Engine is available";
+    // Ajoutez ici les configurations nécessaires pour le moteur QML
 }

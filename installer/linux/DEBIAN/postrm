@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+echo "🧹 Nettoyage des fichiers personnalisés de TestApp..."
+
+# Supprimer l’entrée dans le menu (si toujours présente)
+if [ -f /usr/share/applications/testapp.desktop ]; then
+    rm -f /usr/share/applications/testapp.desktop
+fi
+
+# Supprimer l’icône du menu
+if [ -f /usr/share/icons/hicolor/64x64/apps/testapp.png ]; then
+    rm -f /usr/share/icons/hicolor/64x64/apps/testapp.png
+fi
+
+# Mise à jour des caches
+if command -v update-desktop-database > /dev/null; then
+    update-desktop-database /usr/share/applications || true
+fi
+
+if command -v gtk-update-icon-cache > /dev/null; then
+    gtk-update-icon-cache -f /usr/share/icons/hicolor || true
+fi
+
+echo "✅ TestApp désinstallé proprement."
+
+exit 0

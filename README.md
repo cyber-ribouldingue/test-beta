@@ -1,3 +1,5 @@
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+
 ![Statut des tests](https://github.com/cyber-ribouldingue/tests-beta/actions/workflows/tests.yml/badge.svg)
 ![Build Status](https://github.com/<utilisateur>/TestApp/actions/workflows/ci.yml/badge.svg)
 ![Coverage Status](https://github.com

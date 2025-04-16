@@ -1,0 +1,28 @@
+name: Build WebAssembly (WASM)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: 3.1.27
+
+      - name: Build Web version
+        run: |
+          emcmake cmake -S platform/web -B build-web
+          cmake --build build-web
+
+      - name: Upload site
+        uses: actions/upload-artifact@v3
+        with:
+          name: testapp-web
+          path: build-web/

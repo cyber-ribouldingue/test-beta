@@ -1,0 +1,27 @@
+name: Build Linux Installer
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer les dépendances
+        run: sudo apt-get update && sudo apt-get install -y dpkg-dev
+      - name: Compiler l'application
+        run: |
+          cmake -B build
+          cmake --build build --config Release
+      - name: Créer le paquet .deb
+        run: |
+          mkdir -p package/usr/local/bin
+          cp build/your_executable package/usr/local/bin/
+          dpkg-deb --build package testapp.deb
+      - name: Télécharger le paquet .deb
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-installer
+          path: testapp.deb

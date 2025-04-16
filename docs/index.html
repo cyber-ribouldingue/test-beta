@@ -2,42 +2,72 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>TestApp – Documentation utilisateur</title>
+  <title>TestApp Web</title>
+  <base href="/test-beta/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2em; }
-    h1, h2 { color: #003366; }
-    code { background: #eee; padding: 0.1em 0.3em; border-radius: 3px; }
-    a { color: #0066cc; text-decoration: none; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 3em;
+    }
+    #log {
+      margin: 2em auto;
+      padding: 1em;
+      border: 1px solid #ccc;
+      width: 80%;
+      background: #f9f9f9;
+      text-align: left;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    #loader {
+      font-size: 1.2em;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
-<h1>📘 Documentation utilisateur – TestApp</h1>
+<h1>TestApp WebAssembly</h1>
 
-<p><strong>TestApp</strong> est une application Qt/C++ multiplateforme (Linux, Windows, macOS, Android, iOS, WebAssembly).</p>
+<div id="loader">Chargement de l'application...</div>
 
-<h2>📦 Installer l’application</h2>
-<ul>
-  <li><a href="README-installation-linux.md">Installer sous Linux (.deb)</a></li>
-  <li><a href="README-installation-windows.md">Installer sous Windows (.msi)</a></li>
-  <li><a href="README-installation-macos.md">Installer sous macOS (.dmg)</a></li>
-  <li><a href="README-installation-android.md">Installer sous Android (.apk)</a></li>
-  <li><a href="README-installation-ios.md">Installer sous iOS (TestFlight/Xcode)</a></li>
-  <li><a href="README-installation-web.md">Accéder à la version Web (.wasm)</a></li>
-</ul>
+<div id="log"></div>
 
-<h2>🚀 Lancer TestApp</h2>
-<p>Une fois installé, vous pouvez lancer TestApp depuis le menu de votre système ou via :</p>
-<pre><code>TestApp</code></pre>
+<noscript>
+  <p style="color: red;">JavaScript est désactivé dans votre navigateur. Cette application ne peut pas fonctionner.</p>
+</noscript>
 
-<h2>🧪 Tester l’application</h2>
-<p>Des tests automatiques sont intégrés dans le projet.</p>
+<script>
+  // Affichage console intégré à la page
+  const logDiv = document.getElementById("log");
+  const loader = document.getElementById("loader");
 
-<h2>👥 Participer au projet</h2>
-<p>Consultez : <a href="../CONTRIBUTING.md">Guide pour les contributeurs</a> et <a href="../HACKING.md">guide technique</a>.</p>
+  function log(msg) {
+    logDiv.textContent += msg + "\\n";
+  }
 
-<h2>📬 Contact</h2>
-<p>Mainteneur : Cyber Ribouldingue — <a href="mailto:cyber@example.com">cyber@example.com</a></p>
+  // Redirection console.log vers le DOM
+  console.log = function (...args) {
+    const msg = args.join(" ");
+    log(msg);
+  };
+
+  // Configuration du module Emscripten
+  var Module = {
+    onRuntimeInitialized: function () {
+      loader.textContent = "Application lancée avec succès.";
+      log("Initialisation WebAssembly terminée.");
+    }
+  };
+</script>
+
+<script src="TestApp.js"></script>
+
+<noscript>
+  <p style="color: red;">Votre navigateur ne prend pas en charge WebAssembly ou JavaScript est désactivé.</p>
+</noscript>
 
 </body>
 </html>

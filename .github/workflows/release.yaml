@@ -3,41 +3,51 @@ name: 📦 Release
 on:
   push:
     tags:
-      - 'v*'  # Exemple : v1.0.0, v2.1.3
+      - 'v*'
 
 jobs:
   release:
-    name: Create GitHub Release avec artefacts
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du dépôt
+      - name: 📥 Checkout du dépôt
         uses: actions/checkout@v4
 
-      - name: Extraire la version depuis le tag
-        id: extract_version
+      - name: ✅ Vérification des dépendances
+        run: |
+          for cmd in cmake ninja zip; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd est manquant"
+              exit 1
+            fi
+            echo "✅ $cmd trouvé"
+          done
+
+      - name: Extraire version
+        id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: Créer la release GitHub
+      - name: Compiler le projet
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+
+      - name: Créer la release
         uses: softprops/action-gh-release@v1
         with:
           name: "Version ${{ env.VERSION }}"
           tag_name: "${{ env.VERSION }}"
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Joindre les artefacts
+      - name: Ajouter les artefacts
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            testapp_*.deb
-            TestAppInstaller.msi
-            TestApp_*.dmg
+            *.deb
+            *.msi
+            *.dmg
             platform/android/app/build/outputs/apk/debug/app-debug.apk
-            web-dist/*.wasm
-            web-dist/*.js
-            web-dist/index.html
+            web-dist/*.*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

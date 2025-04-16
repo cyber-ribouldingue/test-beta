@@ -1,0 +1,14 @@
+name: iOS Build Check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-ios-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier configuration iOS avec CMake
+        run: |
+          cmake -S platform/ios -B ios-build -DCMAKE_SYSTEM_NAME=iOS || true

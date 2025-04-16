@@ -1,9 +1,10 @@
-// Fichier utilisé uniquement pour que CodeQL détecte du code C++ natif
+// src/dummy_codeql.cpp
+
 #include <string>
 
 std::string getVersion()
 {
-    return "1.0.0";
+    return "0.1";
 }
 
 int add(int a, int b)

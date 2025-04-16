@@ -1,8 +1,10 @@
 [Desktop Entry]
+Version=1.0
+Type=Application
 Name=TestApp
-Comment=Application Qt/QML multiplateforme
+Comment=Application Qt/C++ avec interface QML
 Exec=/usr/local/bin/TestApp
 Icon=testapp
 Terminal=false
-Type=Application
 Categories=Utility;Qt;Development;
+StartupNotify=true

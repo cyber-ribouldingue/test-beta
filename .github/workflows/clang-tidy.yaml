@@ -1,33 +1,22 @@
-name: Clang-Tidy Linter
+name: Clang-Tidy
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  lint:
+  clang-tidy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build
-          pip install aqtinstall
+      - uses: actions/checkout@v4
 
       - name: Install Qt
-        run: |
-          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 --outputdir $HOME/Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
 
-      - name: Configure CMake
-        run: cmake -S . -B build \
-                 -DCMAKE_PREFIX_PATH=$HOME/Qt/6.6.3/gcc_64 \
-                 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: Configure for tidy
+        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug
 
-      - name: Run Clang-Tidy
-        run: clang-tidy -p build $(find . -name '*.cpp')
+      - name: Run clang-tidy
+        run: clang-tidy -p build $(find src tests -name '*.cpp')

@@ -1,21 +1,19 @@
+# 📘 Documentation utilisateur – TestApp
 
-Documentation a ecrire pour les utilisateurs de ce dépot
+Bienvenue dans la documentation de l’application **TestApp**, conçue pour fonctionner sur toutes les plateformes (Linux, Windows, macOS, Android, iOS, Web).
 
-Sur le projet C++/Qt :
+## 🔗 Liens d'installation par plateforme
 
-- creer son propre dépot GitHub a partir de ce modele de dépot GitHub
-- clone son deport GitHub sur une machine locale
-- executer l'application, les tests ou les tests UI sur sa machine locale
-- executer l'application sur un mobile (Android et/ou iOS, selon ce qui est supporté)
-- modifier le projet C++/Qt existant fournit dans ce dépot GitHub
-- modifier les tests C++/Qt
-- modifier les test UI
+- [Linux (.deb)](README-installation-linux.md)
+- [Windows (.msi)](README-installation-windows.md)
+- [macOS (.dmg)](README-installation-macos.md)
+- [Android (.apk)](README-installation-android.md)
+- [iOS (TestFlight)](README-installation-ios.md)
+- [Web (via GitHub Pages)](README-installation-web.md)
+
+## 🧰 À propos
+
+TestApp est une application Qt moderne, modulaire et automatisée.  
+Vous pouvez l’installer, la tester, la modifier et la déployer en toute simplicité grâce à la documentation et aux scripts fournis.
 
 
-Sur la gestion de projets
-
-- comment faire une release et les annonces
-- comment gerer les retours utilisateurs (commentaires, ameliorations, bugs)
-
-Idees
-- platform dependant code. core and UI

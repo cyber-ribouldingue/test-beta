@@ -2,43 +2,62 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 19,
-    "patch": 0
+    "minor": 21
   },
   "configurePresets": [
     {
-      "name": "android",
-      "displayName": "Android Build",
-      "description": "Configure for Android",
+      "name": "default",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/android",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/android.toolchain.cmake",
-        "ANDROID_ABI": "armeabi-v7a",
-        "ANDROID_PLATFORM": "android-21",
         "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Linux"
+      }
+    },
+    {
+      "name": "windows",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Windows"
+      }
+    },
+    {
+      "name": "macos",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Darwin"
+      }
+    },
+    {
+      "name": "android",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/android/gradle/cmake/android.toolchain.cmake",
+        "ANDROID_ABI": "arm64-v8a",
+        "ANDROID_PLATFORM": "android-28"
       }
     },
     {
       "name": "ios",
-      "displayName": "iOS Build",
-      "description": "Configure for iOS",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/ios",
+      "inherits": "default",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/ios.toolchain.cmake",
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/ios/toolchain/ios.toolchain.cmake",
+        "CMAKE_SYSTEM_NAME": "iOS"
       }
     },
     {
       "name": "wasm",
-      "displayName": "WebAssembly Build",
-      "description": "Configure for WebAssembly",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/wasm",
+      "inherits": "default",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/wasm.toolchain.cmake",
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/platform/wasm/toolchain/wasm.toolchain.cmake",
+        "CMAKE_SYSTEM_NAME": "Emscripten"
       }
     }
   ]

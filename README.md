@@ -71,10 +71,7 @@ Le projet inclut une architecture professionnelle avec :
 
 ---
 
-## 📬 Contact
 
-**Auteur :** Cyber Ribouldingue  
-**Email :** cyber@example.com
 
 ---
 

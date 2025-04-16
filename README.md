@@ -10,13 +10,14 @@ TestApp
 
 ​
 
-📋 Présentation
+ Présentation
 TestApp est une application multiplateforme développée avec Qt 6.8.3, C++20 et QML. Elle est conçue pour être intuitive, simple à utiliser et compatible avec les plateformes desktop, mobile (Android/iOS) et Web (WASM).​
 
-📥 [Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
+ [Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
+ [Guide d'installation Windows (.msi)](docs/README-installation-windows.md)
 
 
-🧱 Structure du projet
+ Structure du projet
 bash
 Copier
 Modifier
@@ -47,7 +48,7 @@ Intégration continue via GitHub Actions
 
 Documentation générée automatiquement avec QDoc​
 
-🛠️ Compilation
+ Compilation
 Prérequis
 Qt 6.8.3 ou supérieur
 
@@ -70,13 +71,13 @@ cmake --build build --target CppTest QtTests QmlTests
 ./build/tests/cpp-tests/CppTest
 ./build/tests/qt-tests/QtTests
 ./build/tests/qml-tests/QmlTests
-📦 Packaging
+ Packaging
 bash
 Copier
 Modifier
 cd build
 cpack
-📚 Documentation
+ Documentation
 La documentation technique est générée avec QDoc :​
 Reddit
 +8
@@ -91,7 +92,7 @@ Modifier
 qdoc docs/testapp.qdocconf
 La documentation utilisateur est disponible dans docs/index.html.​
 
-🤝 Contribution
+ Contribution
 Les contributions sont les bienvenues !​
 
 Forkez le dépôt
@@ -104,7 +105,7 @@ Poussez la branche (git push origin feature/ma-fonctionnalite)
 
 Ouvrez une Pull Request​
 
-📄 Licence
+ Licence
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d'informations.
 ***********************************************************************
 [![Pages](https://github.com/GuillaumeBelz/cyber-ribouldingue-test-beta/actions/workflows/pages/pages-build-deployment/badge.svg)](https://guillaumebelz.github.io/cyber-ribouldingue-test-beta/)

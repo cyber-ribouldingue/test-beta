@@ -1,3 +1,101 @@
+TestApp
+
+​
+
+📋 Présentation
+TestApp est une application multiplateforme développée avec Qt 6.8.3, C++20 et QML. Elle est conçue pour être intuitive, simple à utiliser et compatible avec les plateformes desktop, mobile (Android/iOS) et Web (WASM).​
+
+🧱 Structure du projet
+bash
+Copier
+Modifier
+.
+├── src/                    # Code source C++
+├── qml/                    # Interface utilisateur QML
+├── tests/                  # Tests unitaires et d'intégration
+│   ├── cpp-tests/          # Tests C++ avec Qt Test
+│   ├── qt-tests/           # Tests UI Qt Widgets
+│   └── qml-tests/          # Tests QML avec QtQuickTest
+├── platform/               # Configurations spécifiques aux plateformes
+│   ├── android/
+│   ├── ios/
+│   └── wasm/
+├── docs/                   # Documentation technique et utilisateur
+├── CMakeLists.txt          # Configuration principale CMake
+└── .gitignore              # Fichiers et répertoires à ignorer par Git
+🚀 Fonctionnalités
+Interface utilisateur réactive en QML avec Qt Quick Controls
+
+Structure modulaire avec séparation claire du code source et de l'interface
+
+Tests unitaires en C++, Qt et QML intégrés
+
+Compatibilité avec les plateformes Android, iOS, WebAssembly, Windows, Linux et macOS
+
+Intégration continue via GitHub Actions
+
+Documentation générée automatiquement avec QDoc​
+
+🛠️ Compilation
+Prérequis
+Qt 6.8.3 ou supérieur
+
+CMake 3.16 ou supérieur
+
+Compilateur C++20 compatible​
+
+Instructions
+bash
+Copier
+Modifier
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+./build/TestApp
+🧪 Tests
+bash
+Copier
+Modifier
+cmake --build build --target CppTest QtTests QmlTests
+./build/tests/cpp-tests/CppTest
+./build/tests/qt-tests/QtTests
+./build/tests/qml-tests/QmlTests
+📦 Packaging
+bash
+Copier
+Modifier
+cd build
+cpack
+📚 Documentation
+La documentation technique est générée avec QDoc :​
+Reddit
++8
+GitHub
++8
+GitHub
++8
+
+bash
+Copier
+Modifier
+qdoc docs/testapp.qdocconf
+La documentation utilisateur est disponible dans docs/index.html.​
+
+🤝 Contribution
+Les contributions sont les bienvenues !​
+
+Forkez le dépôt
+
+Créez une branche (git checkout -b feature/ma-fonctionnalite)
+
+Commitez vos modifications (git commit -am 'Ajout de ma fonctionnalité')
+
+Poussez la branche (git push origin feature/ma-fonctionnalite)
+
+Ouvrez une Pull Request​
+
+📄 Licence
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d'informations.
+***********************************************************************
 [![Pages](https://github.com/GuillaumeBelz/cyber-ribouldingue-test-beta/actions/workflows/pages/pages-build-deployment/badge.svg)](https://guillaumebelz.github.io/cyber-ribouldingue-test-beta/)
 [![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-check.yaml/badge.svg)](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-check.yaml)
 [![clang-format](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-daily.yaml/badge.svg)](https://github.com/GuillaumeBelz/test/actions/workflows/clang-format-daily.yaml)

@@ -1,4 +1,8 @@
 ![Statut des tests](https://github.com/cyber-ribouldingue/test-beta/actions/workflows/tests.yml/badge.svg)
+![Build Status](https://github.com/<utilisateur>/TestApp/actions/workflows/ci.yml/badge.svg)
+![Coverage Status](https://github.com
+::contentReference[oaicite:25]{index=25}
+ 
 
 TestApp
 

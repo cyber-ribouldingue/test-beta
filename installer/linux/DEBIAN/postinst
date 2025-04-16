@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+echo "🔄 Mise à jour du menu et du cache d'icônes..."
+
+# Mise à jour du cache des icônes (si possible)
+if command -v gtk-update-icon-cache > /dev/null; then
+    gtk-update-icon-cache -f /usr/share/icons/hicolor || true
+fi
+
+# Mise à jour de la base des fichiers .desktop
+if command -v update-desktop-database > /dev/null; then
+    update-desktop-database /usr/share/applications || true
+fi
+
+echo "✅ TestApp a bien été installé et intégré au menu."
+
+exit 0

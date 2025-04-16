@@ -9,30 +9,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Installer Emscripten
+      - name: ✅ Vérification des dépendances
+        run: |
+          for cmd in cmake emcmake emcc; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd est manquant"
+              exit 1
+            fi
+            echo "✅ $cmd trouvé"
+          done
+
+      - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v11
         with:
           version: 3.1.27
 
-      - name: Compiler en WebAssembly
+      - name: Compiler
         run: |
           emcmake cmake -S platform/web -B build-web
           cmake --build build-web
 
-      - name: Copier vers /docs/
+      - name: Publier vers docs/
         run: |
           mkdir -p docs/
           cp platform/web/index.html docs/
           cp build-web/TestApp.js docs/
           cp build-web/TestApp.wasm docs/
 
-      - name: Commit automatique vers docs/
+      - name: Commit auto
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add docs/
-          git commit -m "📦 MAJ automatique WebAssembly (GitHub Pages)" || echo "Aucun changement"
+          git commit -m "🔄 MAJ auto GitHub Pages" || echo "Pas de changements"
           git push

@@ -3,33 +3,30 @@ name: Analyse mémoire avec Valgrind
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   valgrind:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du dépôt
+      - name: 📥 Checkout du code
         uses: actions/checkout@v4
 
       - name: ✅ Vérification des dépendances
         run: |
           for cmd in cmake valgrind; do
             if ! command -v $cmd &> /dev/null; then
-              echo "❌ $cmd is not installed"; exit 1;
+              echo "❌ $cmd est manquant"
+              exit 1
             fi
+            echo "✅ $cmd trouvé"
           done
 
-      - name: Installer Valgrind
-        run: sudo apt-get update && sudo apt-get install -y valgrind
-
-      - name: Configurer le projet
+      - name: Configurer CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
 
       - name: Compiler
         run: cmake --build build
 
-      - name: 🚨 Exécuter Valgrind sur TestApp
-        run: |
-          valgrind --leak-check=full --error-exitcode=1 ./build/TestApp
+      - name: 🚨 Exécuter Valgrind
+        run: valgrind --leak-check=full --error-exitcode=1 ./build/TestApp

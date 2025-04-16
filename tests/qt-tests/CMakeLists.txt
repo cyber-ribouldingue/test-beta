@@ -1,14 +1,24 @@
+# CMakeLists.txt – tests/qt-tests
+
 cmake_minimum_required(VERSION 3.16)
-project(QtGuiTests LANGUAGES CXX)
+project(QtWidgetTests LANGUAGES CXX)
 
 enable_testing()
 
-find_package(Qt6 REQUIRED COMPONENTS Gui Test Widgets)
+# ✅ Vérification des modules requis
+find_package(Qt6 REQUIRED COMPONENTS Widgets Test)
+if (NOT Qt6::Test OR NOT Qt6::Widgets)
+    message(FATAL_ERROR "❌ Qt6::Test et Qt6::Widgets sont requis pour les tests Qt Widgets")
+else()
+    message(STATUS "✅ Qt6::Test et Qt6::Widgets trouvés pour QtWidgetTests")
+endif()
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# 🎯 Création de l'exécutable de test
+add_executable(QtTestApp
+    tst_test1.cpp
+)
 
-add_executable(QtTests tst_test1.cpp)
-add_test(NAME QtTests COMMAND QtTests)
+target_link_libraries(QtTestApp PRIVATE Qt6::Widgets Qt6::Test)
 
-target_link_libraries(QtTests PRIVATE Qt6::Gui Qt6::Test Qt6::Widgets)
+# 🧪 Enregistrement du test
+add_test(NAME QtTestApp COMMAND QtTestApp)

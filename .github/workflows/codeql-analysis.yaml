@@ -1,43 +1,36 @@
-name: CodeQL Analysis
+name: CodeQL
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 1 * * 0'  # chaque dimanche
+    branches: [main]
 
 jobs:
   analyze:
-    name: Analyse de sécurité C++ avec CodeQL
+    name: Analyze
     runs-on: ubuntu-latest
-
     permissions:
-      actions: read
-      contents: read
       security-events: write
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: ✅ Vérification des dépendances
+        run: |
+          for cmd in cmake; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd is not installed"; exit 1;
+            fi
+          done
+
+      - uses: github/codeql-action/init@v2
         with:
           languages: cpp
-          build-mode: manual
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
+      - name: Build
+        run: |
+          cmake -B build
+          cmake --build build
 
-      - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build project
-        run: cmake --build build
-
-      - name: Run CodeQL
-        uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v2

@@ -1,4 +1,4 @@
-name: Build macOS Installer
+name: Build macOS DMG Installer
 
 on:
   push:
@@ -9,13 +9,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Compiler l'application
         run: |
-          cmake -B build
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
+
       - name: Créer le fichier .dmg
         run: |
           hdiutil create -volname TestApp -srcfolder build/Release -ov -format UDZO TestApp.dmg
+
       - name: Télécharger le fichier .dmg
         uses: actions/upload-artifact@v3
         with:

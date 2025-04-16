@@ -7,15 +7,19 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
 
       - name: ✅ Vérification des dépendances
         run: |
           for cmd in cmake ctest llvm-profdata llvm-cov; do
             if ! command -v $cmd &> /dev/null; then
-              echo "❌ $cmd is not installed"; exit 1;
+              echo "❌ $cmd est manquant"
+              exit 1
             fi
+            echo "✅ $cmd trouvé"
           done
 
       - name: Configurer CMake avec couverture
@@ -23,7 +27,7 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
           cmake --build build
 
-      - name: 🚀 Exécuter les tests avec couverture
+      - name: 🚀 Tests avec couverture
         run: |
           cd build
           ctest --output-on-failure --parallel $(nproc)

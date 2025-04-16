@@ -1,7 +1,7 @@
 #include <QtTest>
 #include "calculator.h"
 
-class TestCalculator : public QObject
+class CalculatorTest : public QObject
 {
     Q_OBJECT
 
@@ -10,17 +10,17 @@ private slots:
     void testDivisionByZero();
 };
 
-void TestCalculator::testAddition()
+void CalculatorTest::testAddition()
 {
     Calculator calc;
     QCOMPARE(calc.add(2, 3), 5);
 }
 
-void TestCalculator::testDivisionByZero()
+void CalculatorTest::testDivisionByZero()
 {
     Calculator calc;
     QVERIFY_EXCEPTION_THROWN(calc.divide(10, 0), std::runtime_error);
 }
 
-QTEST_MAIN(TestCalculator)
+QTEST_MAIN(CalculatorTest)
 #include "tst_calculator.moc"

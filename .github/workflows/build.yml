@@ -1,4 +1,4 @@
-name: Build Qt6 Project
+name: Build Qt Application
 
 on:
   push:
@@ -8,26 +8,33 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.6.3'
-          host: 'mac'
-          target: 'desktop'
-          arch: 'clang_64'
-          modules: 'qtbase qtgui qtwidgets qtquick'
+          version: '6.8.3'
+          host: ${{ matrix.os == 'macos-latest' && 'mac' || (matrix.os == 'windows-latest' && 'windows' || 'linux') }}
+          target: desktop
+          arch: ${{ matrix.os == 'windows-latest' && 'win64_msvc2019_64' || 'gcc_64' }}
 
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -G Ninja
+      - name: Configure with CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --parallel
+
+  finalize:
+    name: ✅ Tous les builds ont terminé
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ Compilation terminée sur toutes les plateformes."

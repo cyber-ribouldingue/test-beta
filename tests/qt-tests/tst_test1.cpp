@@ -1,33 +1,21 @@
-// test
-#include <QCoreApplication>
+// tests/qt-tests/tst_test1.cpp
+
 #include <QtTest>
+#include <QPushButton>
 
-// add necessary includes here
-
-class Test1 : public QObject
+class QtGuiTest : public QObject
 {
     Q_OBJECT
 
-public:
-    Test1();
-    ~Test1();
-
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-    void test_case1();
+    void buttonText();
 };
 
-Test1::Test1() { }
+void QtGuiTest::buttonText()
+{
+    QPushButton button("Click me");
+    QCOMPARE(button.text(), QString("Click me"));
+}
 
-Test1::~Test1() { }
-
-void Test1::initTestCase() { }
-
-void Test1::cleanupTestCase() { }
-
-void Test1::test_case1() { }
-
-QTEST_MAIN(Test1)
-
+QTEST_MAIN(QtGuiTest)
 #include "tst_test1.moc"

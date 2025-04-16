@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TestApp WebAssembly</title>
+</head>
+<body>
+  <h1>✅ TestApp Web en WebAssembly</h1>
+  <p>Si vous voyez ce message, c’est que le fichier HTML est bien chargé.</p>
+  <script>
+    var Module = {
+      onRuntimeInitialized: function () {
+        console.log("✔️ TestApp WebAssembly prêt !");
+      }
+    };
+  </script>
+  <script src="TestApp.js"></script>
+</body>
+</html>

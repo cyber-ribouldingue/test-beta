@@ -9,24 +9,24 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Installer WiX Toolset
-        run: choco install wix -y
+      - name: ✅ Vérification des dépendances
+        run: |
+          if (!(Get-Command cmake -ErrorAction SilentlyContinue)) {
+            Write-Error "❌ cmake non trouvé"; exit 1
+          }
+          if (!(Get-Command candle -ErrorAction SilentlyContinue)) {
+            Write-Error "❌ WiX (candle.exe) non trouvé"; exit 1
+          }
+          if (!(Get-Command light -ErrorAction SilentlyContinue)) {
+            Write-Error "❌ WiX (light.exe) non trouvé"; exit 1
+          }
+          Write-Output "✅ Toutes les dépendances trouvées"
 
-      - name: Compiler l'application
+      - name: Compilation + MSI
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release
-
-      - name: Créer le fichier .msi
-        run: |
-          candle installer/windows/installer.wxs
-          light installer.wixobj -o TestAppInstaller.msi
-
-      - name: Upload du fichier MSI
-        uses: actions/upload-artifact@v3
-        with:
-          name: windows-installer
-          path: TestAppInstaller.msi
+          cmake --build build
+          cd installer/windows
+          ./build-msi.bat

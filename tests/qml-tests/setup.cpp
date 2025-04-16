@@ -1,16 +1,13 @@
 #include "setup.h"
 
-void Setup::applicationAvailable()
-{
-    // custom code that does not require QQmlEngine
+void Setup::applicationAvailable() {
+    // Custom app setup if needed
 }
 
-void Setup::qmlEngineAvailable(QQmlEngine *engine)
-{
-    // custom code that needs QQmlEngine, register QML types, add import paths,...
+void Setup::qmlEngineAvailable(QQmlEngine *engine) {
+    // Add paths, register QML types, etc.
 }
 
-void Setup::cleanupTestCase()
-{
-    // custom code to clean up before destruction starts
+void Setup::cleanupTestCase() {
+    // Final cleanup
 }

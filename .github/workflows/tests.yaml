@@ -4,46 +4,27 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Vérification des dépendances
-        run: |
-          for cmd in cmake ctest ninja; do
-            if ! command -v $cmd &> /dev/null; then
-              echo "$cmd n'est pas installé."; exit 1;
-            fi
-          done
-
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: ✅ Vérification des dépendances
         run: |
           for cmd in cmake ctest ninja; do
             if ! command -v $cmd &> /dev/null; then
-               echo "❌ $cmd is not installed"; exit 1;
+              echo "❌ $cmd is not installed"; exit 1;
             fi
           done
 
-      - name: Configuration de CMake
+      - name: Configurer CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Compilation
-        run: cmake --build build --config Release
+      - name: Compiler
+        run: cmake --build build
 
-      - name: Exécution des tests en parallèle
+      - name: 🚀 Exécuter les tests en parallèle
         run: ctest --test-dir build --output-on-failure --parallel $(nproc)
-
-      - name: Publication des résultats des tests
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: build/Testing/**/*.xml

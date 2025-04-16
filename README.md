@@ -1,8 +1,7 @@
-![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+-![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
-![Statut des tests](https://github.com/cyber-ribouldingue/tests-beta/actions/workflows/tests.yml/badge.svg)
-![Build Status](https://github.com/<utilisateur>/TestApp/actions/workflows/ci.yml/badge.svg)
-![Coverage Status](https://github.com
+-![Statut des tests](https://github.com/cyber-ribouldingue/tests-beta/actions/workflows/tests.yml/badge.svg)
+--![Build Status](https://github.com/<utilisateur>/TestApp/actions/workflows/ci.yml/badge.svg)![Coverage Status]-(https://github.com
 ::contentReference[oaicite:25]{index=25}
  
 
@@ -13,9 +12,9 @@ TestApp
  Présentation
 TestApp est une application multiplateforme développée avec Qt 6.8.3, C++20 et QML. Elle est conçue pour être intuitive, simple à utiliser et compatible avec les plateformes desktop, mobile (Android/iOS) et Web (WASM).​
 
- [Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
- [Guide d'installation Windows (.msi)](docs/README-installation-windows.md)
-
+ -[Guide d'installation Linux (.deb) via GitHub](docs/README-installation-linux.md)
+ -[Guide d'installation Windows (.msi)](docs/README-installation-windows.md)
+ -[Guide d'installation Android (.apk)](docs/README-installation-android.md)
 
  Structure du projet
 bash

@@ -10,14 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
 
       - name: ✅ Vérification des dépendances
         run: |
           for cmd in cmake ctest ninja; do
             if ! command -v $cmd &> /dev/null; then
-              echo "❌ $cmd is not installed"; exit 1;
+              echo "❌ $cmd est manquant"
+              exit 1
             fi
+            echo "✅ $cmd trouvé"
           done
 
       - name: Configurer CMake
@@ -26,5 +29,5 @@ jobs:
       - name: Compiler
         run: cmake --build build
 
-      - name: 🚀 Exécuter les tests en parallèle
+      - name: 🚀 Exécuter les tests
         run: ctest --test-dir build --output-on-failure --parallel $(nproc)

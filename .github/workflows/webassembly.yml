@@ -9,20 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ✅ Vérification des dépendances
+        run: |
+          for cmd in emcmake emcc cmake; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd est manquant"
+              exit 1
+            fi
+            echo "✅ $cmd trouvé"
+          done
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v11
         with:
           version: 3.1.27
 
-      - name: Build Web version
+      - name: Compiler Web
         run: |
           emcmake cmake -S platform/web -B build-web
           cmake --build build-web
-
-      - name: Upload site
-        uses: actions/upload-artifact@v3
-        with:
-          name: testapp-web
-          path: build-web/

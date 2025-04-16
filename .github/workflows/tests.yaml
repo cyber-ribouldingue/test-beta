@@ -22,6 +22,17 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ✅ Vérification des dépendances
+        run: |
+          for cmd in cmake ctest ninja; do
+            if ! command -v $cmd &> /dev/null; then
+               echo "❌ $cmd is not installed"; exit 1;
+            fi
+          done
+
       - name: Configuration de CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 

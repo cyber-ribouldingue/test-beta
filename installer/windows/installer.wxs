@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="TestApp" Language="1033" Version="1.0.0" Manufacturer="Cyber Ribouldingue" UpgradeCode="6F330B47-2577-43AD-9095-1861BA25889B">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="TestApp">
+          <Component Id="MainExecutable" Guid="C1C52AF5-22E5-4E01-B7E5-1234567890AB">
+            <File Id="TestAppExe" Name="TestApp.exe" Source="build\Release\TestApp.exe" KeyPath="yes"/>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainFeature" Title="TestApp" Level="1">
+      <ComponentRef Id="MainExecutable" />
+    </Feature>
+  </Product>
+</Wix>

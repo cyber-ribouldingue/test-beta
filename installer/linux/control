@@ -1,0 +1,14 @@
+Package: testapp
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Cyber Ribouldingue <cyber@example.com>
+Description: TestApp — Application Qt/C++ avec interface QML
+Depends: libc6 (>= 2.27),
+         libqt6core6 (>= 6.2),
+         libqt6gui6 (>= 6.2),
+         libqt6qml6 (>= 6.2),
+         libqt6quick6 (>= 6.2),
+         libqt6widgets6 (>= 6.2),
+         libqt6quickcontrols2-6 (>= 6.2)

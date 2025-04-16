@@ -1,4 +1,4 @@
-name: Build Linux Installer
+name: Build Linux DEB Package
 
 on:
   push:
@@ -9,19 +9,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Installer les dépendances
         run: sudo apt-get update && sudo apt-get install -y dpkg-dev
+
       - name: Compiler l'application
         run: |
-          cmake -B build
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
-      - name: Créer le paquet .deb
+
+      - name: Préparer le paquet DEB
         run: |
           mkdir -p package/usr/local/bin
           cp build/your_executable package/usr/local/bin/
-          dpkg-deb --build package testapp.deb
-      - name: Télécharger le paquet .deb
+          mkdir -p package/DEBIAN
+          echo "Package: testapp
+Version: 1.0.0
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: Your Name <you@example.com>
+Description: TestApp description" > package/DEBIAN/control
+
+      - name: Créer le paquet DEB
+        run: dpkg-deb --build package TestApp.deb
+
+      - name: Télécharger le paquet DEB
         uses: actions/upload-artifact@v3
         with:
           name: linux-installer
-          path: testapp.deb
+          path: TestApp.deb

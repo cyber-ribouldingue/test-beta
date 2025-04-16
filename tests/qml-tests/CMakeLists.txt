@@ -13,6 +13,21 @@ add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB_RECURSE QML_FILES *.qml)
 add_custom_target(qmlfiles SOURCES ${QML_FILES})
 
+add_executable(QmlTest
+    main.cpp
+    setup.cpp
+    setup.h
+)
+
+target_link_libraries(QmlTest
+    PRIVATE
+        Qt6::QuickTest
+        Qt6::Qml
+        Qt6::Quick
+)
+
+add_test(NAME QmlTest COMMAND QmlTest)
+
 add_executable(QmlTests main.cpp setup.cpp)
 add_test(NAME QmlTests COMMAND QmlTests)
 

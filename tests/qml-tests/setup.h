@@ -1,4 +1,3 @@
-// setup.h
 #ifndef SETUP_H
 #define SETUP_H
 
@@ -10,8 +9,8 @@ class Setup : public QObject
     Q_OBJECT
 
 public:
-    Setup() {}
-    virtual ~Setup() {} // Destructeur virtuel ajouté
+    Setup() = default;
+    virtual ~Setup(); // Déclaration du destructeur virtuel
 
 public slots:
     void qmlEngineAvailable(QQmlEngine *engine);

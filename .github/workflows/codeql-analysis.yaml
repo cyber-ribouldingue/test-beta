@@ -6,11 +6,11 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 1 * * 0'
+    - cron: '0 1 * * 0'  # chaque dimanche
 
 jobs:
   analyze:
-    name: CodeQL C/C++ Analysis
+    name: Analyse de sécurité C++ avec CodeQL
     runs-on: ubuntu-latest
 
     permissions:
@@ -18,35 +18,26 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'cpp' ]
-
     steps:
-      - name: Checkout source code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
+          languages: cpp
           build-mode: manual
 
       - name: Install Qt
-        run: |
-          pip install aqtinstall
-          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 --outputdir $HOME/Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
-
-      - name: Configure project
-        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-                   -DCMAKE_PREFIX_PATH=$HOME/Qt/6.6.3/gcc_64
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build project
         run: cmake --build build
 
-      - name: Perform CodeQL analysis
+      - name: Run CodeQL
         uses: github/codeql-action/analyze@v3

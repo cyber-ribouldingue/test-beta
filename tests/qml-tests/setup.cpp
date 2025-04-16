@@ -1,8 +1,6 @@
 #include "setup.h"
-#include <QQmlContext>
 
-void Setup::qmlEngineAvailable(QQmlEngine *engine)
+Setup::Setup()
 {
-    // Exemple : injection d'une propriété de contexte pour les tests
-    engine->rootContext()->setContextProperty("testMode", true);
+    // Initialisation si nécessaire
 }

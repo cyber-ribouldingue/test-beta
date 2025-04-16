@@ -3,39 +3,32 @@ name: Coverage
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: ✅ Vérification des dépendances
         run: |
-         for cmd in cmake ctest ninja; do
-          if ! command -v $cmd &> /dev/null; then
-          echo "❌ $cmd is not installed"; exit 1;
-         fi
-         done
-         
-      - name: Installer Clang et llvm-cov
+          for cmd in cmake ctest llvm-profdata llvm-cov; do
+            if ! command -v $cmd &> /dev/null; then
+              echo "❌ $cmd is not installed"; exit 1;
+            fi
+          done
+
+      - name: Configurer CMake avec couverture
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang llvm
-      - name: Compiler avec options de couverture
-        run: |
-          cmake -B build -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="--coverage"
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
           cmake --build build
-      - name: Exécuter les tests
+
+      - name: 🚀 Exécuter les tests avec couverture
         run: |
           cd build
-          ctest
+          ctest --output-on-failure --parallel $(nproc)
+
       - name: Générer le rapport de couverture
         run: |
           llvm-profdata merge -sparse default.profraw -o merged.profdata
-          llvm-cov show ./build/your_executable -instr-profile=merged.profdata > coverage.txt
-      - name: Télécharger le rapport de couverture
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage.txt
+          llvm-cov show ./TestApp -instr-profile=merged.profdata > coverage.txt

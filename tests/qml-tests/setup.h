@@ -1,15 +1,14 @@
-#pragma once
+#ifndef SETUP_H
+#define SETUP_H
 
 #include <QObject>
-#include <QQmlEngine>
 
 class Setup : public QObject
 {
     Q_OBJECT
 public:
-    Setup() = default;
-    virtual ~Setup() = default;
-
-public slots:
-    void qmlEngineAvailable(QQmlEngine *engine);
+    Setup();
+    virtual ~Setup() = default; // ✅ Destructeur virtuel ajouté
 };
+
+#endif // SETUP_H

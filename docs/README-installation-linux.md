@@ -1,9 +1,4 @@
-ChatGPT a dit :
-Voici un fichier README-installation-linux.md complet et prêt à être copié-collé dans ton dépôt, conçu spécifiquement pour une utilisation 100% via l’interface web GitHub, sans utiliser le terminal ni ligne de commande manuelle côté utilisateur.
 
-markdown
-Copier
-Modifier
 # 📦 Installation de TestApp sous Linux (.deb) via GitHub
 
 Ce guide vous explique comment **utiliser ce dépôt GitHub pour compiler, générer, télécharger et installer** l’application TestApp sur Linux, **sans utiliser le terminal**. Toutes les opérations sont centralisées dans l’interface GitHub.

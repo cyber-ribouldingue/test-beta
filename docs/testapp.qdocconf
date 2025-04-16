@@ -1,18 +1,13 @@
-project = TestApp
-description = "Documentation développeur de l'application TestApp"
-version = 0.1
+project     = TestApp
+description = Documentation technique du projet TestApp
+version     = 0.1
 
-outputdir = docs/build
-sourcedirs = src
-exampledirs = examples
-imagedirs = docs/images
-headerdirs = src
+sources     = ../src ../qml
+headers     = ../src
 
-language = C++
-autolink = true
-buildversion = "6.6.3"
-generateindex = true
-navigation = true
+outputdir   = ./html
+exampledirs = ../src
+imagedirs   = ../docs/images
 
-sourcedirs += tests/cpp-tests
-headerdirs += tests/cpp-tests
+language    = C++
+identifier  = testapp

@@ -1,12 +1,34 @@
+// qml/Main.qml
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-Window {
+ApplicationWindow {
+    visible: true
     width: 640
     height: 480
-    visible: true
-    title: qsTr("Hello World")
-    Text {
-        anchors.centerIn: parent
-        text: "Hello World"
+    title: qsTr("TestApp")
+
+    Rectangle {
+        anchors.fill: parent
+        color: "#f9f9f9"
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 20
+
+            Text {
+                text: qsTr("Hello World!")
+                font.pixelSize: 28
+                color: "#333"
+                horizontalAlignment: Text.AlignHCenter
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Button {
+                text: qsTr("Click me")
+                onClicked: console.log("Button clicked")
+            }
+        }
     }
 }

@@ -52,6 +52,8 @@ cmake --build build
 Lance les tests :
 
 ctest --test-dir build --output-on-failure
+
+
 Guides d'installation par plateforme
 Les instructions détaillées sont disponibles dans les fichiers suivants :
 

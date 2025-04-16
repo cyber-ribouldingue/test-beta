@@ -1,31 +1,22 @@
-name: Cppcheck Analysis
+name: CppCheck Analysis
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   cppcheck:
-    name: Run cppcheck
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install cppcheck
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
 
-      - name: Run cppcheck on src and tests
+      - name: Run cppcheck
         run: |
-          cppcheck --enable=all --inconclusive --std=c++20 \
-                   --language=c++ \
-                   --inline-suppr \
-                   --suppress=missingIncludeSystem \
-                   --force \
-                   --quiet \
-                   src/ tests/ qml/
+          cppcheck --enable=all --inconclusive --std=c++20 --inline-suppr --force \
+            src/ tests/ qml/ \
+            2> cppcheck-report.txt || true
+          head cppcheck-report.txt

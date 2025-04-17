@@ -1,11 +1,10 @@
-# .github/workflows/cmake.yaml
 name: Build with CMake
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 env:
   BUILD_TYPE: Release
@@ -24,6 +23,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+    env:
+      QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/${{ matrix.os == 'windows-latest' && 'msvc2019_64' || matrix.os == 'macos-latest' && 'clang_64' || 'gcc_64' }}
+      CMAKE_PREFIX_PATH: ${{ env.QT_PATH }}/lib/cmake
+      Qt6_DIR: ${{ env.QT_PATH }}/lib/cmake/Qt6
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,22 +36,10 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-
-      - name: Determine Qt path
-        run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64" >> $GITHUB_ENV
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/clang_64" >> $GITHUB_ENV
-          else
-            # windows-latest
-            echo "QT_PATH=\${{ env.USERPROFILE }}\\Qt\\${{ env.QT_VERSION }}\\msvc2019_64" >> $GITHUB_ENV
-          fi
+          target: ${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'desktop' }}
 
       - name: Configure CMake
-        run: cmake -B build \
-          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_PREFIX_PATH="${{ env.QT_PATH }}"
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
       - name: Build
         run: cmake --build build --config ${{ env.BUILD_TYPE }}
@@ -59,6 +51,11 @@ jobs:
     name: Build Android APK
     runs-on: ubuntu-latest
 
+    env:
+      QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/gcc_64
+      CMAKE_PREFIX_PATH: ${{ env.QT_PATH }}/lib/cmake
+      Qt6_DIR: ${{ env.QT_PATH }}/lib/cmake/Qt6
+
     steps:
       - uses: actions/checkout@v4
 
@@ -69,58 +66,54 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - run: yes | sdkmanager --licenses
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
 
-      - name: Install Qt for Android
+      - name: Install Qt (Android)
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
           target: android
 
-      - name: Configure Qt path
-        run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/android_armv7" >> $GITHUB_ENV
+      - name: Set execute permissions for Gradle wrapper
+        run: chmod +x ./config/android/app/gradlew
 
-      - name: Configure CMake for Android
-        run: cmake -B build-android \
-          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android_armv7/lib/cmake/Qt6/Qt6Toolchain.cmake \
-          -DCMAKE_PREFIX_PATH="$HOME/Qt/${{ env.QT_VERSION }}/android_armv7"
+      - name: Build APK with Gradle (debug)
+        working-directory: ./config/android/app
+        run: ./gradlew assembleDebug --info --stacktrace --no-daemon
 
-      - name: Build APK
-        run: cmake --build build-android -- -j$(nproc)
-
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: TestApp-android-apk
-          path: build-android/*.apk
+          path: config/android/app/build/outputs/apk/debug/*.apk
 
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
 
+    env:
+      QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/ios
+      CMAKE_PREFIX_PATH: ${{ env.QT_PATH }}/lib/cmake
+      Qt6_DIR: ${{ env.QT_PATH }}/lib/cmake/Qt6
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt for iOS
-        uses: jurplel/install-qt-action@v4
+      - uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
           target: ios
 
-      - run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/ios" >> $GITHUB_ENV
-
-      - name: Configure CMake for iOS
+      - name: Configure CMake
         run: |
           cmake -B build-ios \
             -DCMAKE_SYSTEM_NAME=iOS \
             -DCMAKE_OSX_SYSROOT=iphoneos \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-            -DCMAKE_PREFIX_PATH="${{ env.QT_PATH }}" \
-            -G Ninja
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
-      - name: Build iOS App
+      - name: Build
         run: cmake --build build-ios
 
       - name: Archive .app
@@ -138,29 +131,35 @@ jobs:
     name: Build WebAssembly (WASM)
     runs-on: ubuntu-latest
 
+    env:
+      QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/wasm_32
+      EMSDK_DIR: ./emsdk
+      CMAKE_PREFIX_PATH: ${{ env.QT_PATH }}/lib/cmake
+      Qt6_DIR: ${{ env.QT_PATH }}/lib/cmake/Qt6
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Emscripten
-        run: sudo apt-get update && sudo apt-get install -y emscripten
+      - name: Setup Emscripten SDK
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk/emsdk_env.sh
 
-      - name: Install Qt for WASM
-        uses: jurplel/install-qt-action@v4
+      - uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          target: wasm_32
-
-      - run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/wasm_32" >> $GITHUB_ENV
+          target: wasm
 
       - name: Configure CMake for WASM
         run: |
-          cmake -B build-wasm \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-            -DCMAKE_TOOLCHAIN_FILE=/usr/share/emscripten/cmake/Modules/Platform/Emscripten.cmake \
-            -DCMAKE_PREFIX_PATH="${{ env.QT_PATH }}"
+          emcmake cmake -B build-wasm \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
       - name: Build WASM
-        run: cmake --build build-wasm
+        run: emmake cmake --build build-wasm
 
       - name: Upload WASM artifacts
         uses: actions/upload-artifact@v4
@@ -170,11 +169,7 @@ jobs:
 
   finalize:
     name: Final Step
-    needs:
-      - build-desktop
-      - build-android
-      - build-ios
-      - build-wasm
+    needs: [build-desktop, build-android, build-ios, build-wasm]
     runs-on: ubuntu-latest
     steps:
       - run: echo "✅ Tous les builds multiplateformes sont terminés avec succès."

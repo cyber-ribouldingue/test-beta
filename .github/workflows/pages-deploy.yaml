@@ -1,0 +1,42 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Emscripten (pour emcmake/emcc)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y emscripten
+
+      - name: Vérifier outils requis
+        run: |
+          for cmd in cmake emcmake emcc; do
+            if command -v $cmd &>/dev/null; then
+              echo "✅ $cmd trouvé"
+            else
+              echo "❌ $cmd manquant"
+              exit 1
+            fi
+          done
+
+      - name: Générer site web
+        run: |
+          mkdir -p site
+          cmake -B build-site \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=/usr/share/emscripten/cmake/Modules/Platform/Emscripten.cmake
+          cmake --build build-site
+          cp -r build-site/www site/
+
+      - name: Déployer sur Pages
+        uses: actions/deploy-pages@v2
+        with:
+          folder: site

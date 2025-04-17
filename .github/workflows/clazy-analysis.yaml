@@ -1,0 +1,34 @@
+name: Clazy Qt Analysis
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  clazy:
+    runs-on: ubuntu-latest
+
+    env:
+      QT_VERSION: 6.8.3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      - name: Installer Clazy
+        run: sudo apt-get update && sudo apt-get install -y clazy
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64" >> $GITHUB_ENV
+
+      - name: Configurer avec Clazy
+        run: cmake -B build-clazy \
+          -DCMAKE_CXX_COMPILER=clazy \
+          -DCMAKE_PREFIX_PATH="$QT_PATH"
+
+      - name: Lancer Clazy
+        run: cmake --build build-clazy

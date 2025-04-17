@@ -1,0 +1,48 @@
+name: Build Linux DEB Package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.8.3
+
+jobs:
+  build-deb:
+    name: Build DEB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      - name: Déterminer QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64" >> $GITHUB_ENV
+
+      - name: Installer dépendances système
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake cpack fakeroot
+
+      - name: Configurer CMake + CPack
+        run: cmake -B build-deb \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_PREFIX_PATH="$QT_PATH" \
+          -DENABLE_DEB=ON
+
+      - name: Générer le package .deb
+        run: cmake --build build-deb --target package
+
+      - name: Publier l’artefact .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: testapp-deb
+          path: build-deb/*.deb

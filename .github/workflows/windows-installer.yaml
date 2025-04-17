@@ -1,0 +1,43 @@
+name: Build Windows Installer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    env:
+      QT_VERSION: 6.8.3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt Windows
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: msvc2019_64
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=${{ env.USERPROFILE }}\\Qt\\${{ env.QT_VERSION }}\\msvc2019_64" >> $Env:GITHUB_ENV
+
+      - name: Configurer CMake
+        run: cmake -B build-win -G "Visual Studio 17 2022 Win64" -DCMAKE_PREFIX_PATH="%QT_PATH%"
+
+      - name: Compiler
+        run: cmake --build build-win --config Release
+
+      - name: Créer l’installateur NSIS
+        run: |
+          choco install nsis -y
+          makensis -DOUTPUT=build-win/Release/TestApp.app $GITHUB_WORKSPACE/installer/windows/installer.nsi
+
+      - name: Publier l’installateur
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestApp-windows-installer
+          path: build-win/Release/TestAppInstaller.exe

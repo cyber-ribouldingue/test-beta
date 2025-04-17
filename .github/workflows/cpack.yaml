@@ -6,6 +6,7 @@ on:
 jobs:
   package:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,7 +17,9 @@ jobs:
 
       - name: Configure with CPack
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=DEB
+          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
+          echo "Using Qt path: $QT_PATH"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH" -DCPACK_GENERATOR=DEB
           cmake --build build
           cmake --build build --target package
 

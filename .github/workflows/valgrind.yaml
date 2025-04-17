@@ -1,0 +1,34 @@
+name: Analyse Mémoire Valgrind
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  memcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/6.8.3/gcc_64" >> $GITHUB_ENV
+
+      - name: Configurer CMake
+        run: cmake -B build-memcheck \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_PREFIX_PATH="$QT_PATH"
+
+      - name: Compiler
+        run: cmake --build build-memcheck
+
+      - name: Exécuter Valgrind
+        run: valgrind --leak-check=full --error-exitcode=1 build-memcheck/TestApp

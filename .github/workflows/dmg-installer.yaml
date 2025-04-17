@@ -1,0 +1,48 @@
+name: Build macOS DMG Installer
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  dmg:
+    runs-on: macos-latest
+
+    env:
+      QT_VERSION: 6.8.3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Python & outils Qt
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install setuptools wheel py7zr aqtinstall
+
+      - name: Installer Qt macOS
+        run: |
+          python3 -m aqt install-qt mac desktop ${{ env.QT_VERSION }} --outputdir Qt
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$PWD/Qt/${{ env.QT_VERSION }}/macos" >> $GITHUB_ENV
+
+      - name: Configurer & Compiler
+        run: |
+          cmake -B build-dmg \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$QT_PATH"
+          cmake --build build-dmg --config Release
+
+      - name: Créer le DMG
+        run: |
+          mkdir -p dmg
+          hdiutil create -volname TestApp \
+            -srcfolder build-dmg/Release/TestApp.app \
+            -ov -format UDZO dmg/TestApp.dmg
+
+      - name: Publier le DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestApp-macos-dmg
+          path: dmg/TestApp.dmg

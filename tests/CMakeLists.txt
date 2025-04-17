@@ -1,25 +1,20 @@
-# CMakeLists.txt – tests/cpp-tests
+# tests/CMakeLists.txt – CMake principal pour les tests
 
 cmake_minimum_required(VERSION 3.16)
-project(CppTests LANGUAGES CXX)
+project(AllTests LANGUAGES CXX)
 
 enable_testing()
 
-# ✅ Vérification du module QtTest
-find_package(Qt6 REQUIRED COMPONENTS Test)
-if (NOT Qt6::Test)
-    message(FATAL_ERROR "❌ Qt6::Test est requis pour les tests C++")
-else()
-    message(STATUS "✅ Qt6::Test trouvé pour CppTests")
+# Ajout conditionnel des sous-tests
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cpp-tests/CMakeLists.txt")
+    add_subdirectory(cpp-tests)
 endif()
 
-# 🎯 Déclaration de l'exécutable de test
-add_executable(CppTest
-    tst_cpptest.cpp
-    tst_calculator.cpp
-)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/qt-tests/CMakeLists.txt")
+    add_subdirectory(qt-tests)
+endif()
 
-target_link_libraries(CppTest PRIVATE Qt6::Test)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/qml-tests/CMakeLists.txt")
+    add_subdirectory(qml-tests)
+endif()
 
-# 🧪 Déclaration du test
-add_test(NAME CppTest COMMAND CppTest)

@@ -1,46 +1,61 @@
 cmake_minimum_required(VERSION 3.16)
+project(demos VERSION 0.1 LANGUAGES CXX)
 
-project(TestApp VERSION 1.0.0 LANGUAGES CXX)
+# ——— Prise en compte de QT_PATH si défini en CI ———
+if(DEFINED ENV{QT_PATH})
+  message(STATUS "⚙️ Utilisation de QT_PATH depuis l’environnement : $ENV{QT_PATH}")
+  list(APPEND CMAKE_PREFIX_PATH
+       "$ENV{QT_PATH}/lib/cmake/Qt6"
+       "$ENV{QT_PATH}/lib/cmake"
+  )
+endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 📦 Liste des modules Qt requis
-set(REQUIRED_QT_MODULES
-    Core
-    Gui
-    Widgets
-    Qml
-    Quick
-    QuickControls2
-    QuickTest
+find_package(Qt6 REQUIRED COMPONENTS Quick)
+
+qt_standard_project_setup(REQUIRES 6.8)
+
+qt_add_executable(TestApp
+    src/main.cpp
 )
 
-# ✅ Chargement de chaque module un par un avec vérification
-foreach(module IN LISTS REQUIRED_QT_MODULES)
-    find_package(Qt6 COMPONENTS ${module} REQUIRED)
-    if (NOT Qt6::${module})
-        message(FATAL_ERROR "❌ Qt6::${module} est requis mais introuvable")
-    else()
-        message(STATUS "✅ Qt6::${module} trouvé")
-    endif()
-endforeach()
+qt_add_qml_module(TestApp
+    URI testapp
+    VERSION 1.0
+    QML_FILES
+        qml/Main.qml
+    RESOURCES
+        config/android/AndroidManifest.xml
+        config/android/build.gradle
+        config/android/res/values/libs.xml
+        config/android/res/xml/qtprovider_paths.xml
+        config/android/gradle/wrapper/gradle-wrapper.jar
+        config/android/gradle/wrapper/gradle-wrapper.properties
+        config/android/gradle.properties
+        config/android/gradlew
+        config/android/gradlew.bat
+)
 
-# 📁 Répertoire source principal
-add_subdirectory(src)
+set_target_properties(TestApp PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
 
-# 📁 Interface QML si séparée
-if(EXISTS "${CMAKE_SOURCE_DIR}/qml")
-    file(GLOB QML_FILES qml/*.qml)
-    file(COPY ${QML_FILES} DESTINATION ${CMAKE_BINARY_DIR}/qml)
-endif()
+target_link_libraries(TestApp PRIVATE Qt6::Quick)
 
-# 🧪 Tests conditionnels
-include(CTest)
-enable_testing()
+include(GNUInstallDirs)
+install(TARGETS TestApp
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-if(BUILD_TESTING)
-    add_subdirectory(tests/cpp-tests)
-    add_subdirectory(tests/qt-tests)
-    add_subdirectory(tests/qml-tests)
-endif()
+add_subdirectory(tests/cpp-tests)
+add_subdirectory(tests/qt-tests)
+add_subdirectory(tests/qml-tests)
+add_library(DummyIOS STATIC src/hello_ios.cpp)
+add_library(CodeQLTarget STATIC src/dummy_codeql.cpp)

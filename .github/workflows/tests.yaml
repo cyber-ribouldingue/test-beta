@@ -23,11 +23,19 @@ jobs:
             echo "✅ $cmd trouvé"
           done
 
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+
       - name: Configurer CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
+          echo "Using Qt path: $QT_PATH"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
 
       - name: Compiler
         run: cmake --build build
 
       - name: 🚀 Exécuter les tests
-        run: ctest --test-dir build --output-on-failure --parallel $(nproc)
+        run: ctest --test-dir build --output-on-failure --parallel $(nproc || 2)

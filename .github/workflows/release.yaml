@@ -1,4 +1,4 @@
-name: 📦 Release
+name: Release
 
 on:
   push:
@@ -10,18 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout du dépôt
+      - name: Checkout du dépôt
         uses: actions/checkout@v4
 
-      - name: ✅ Vérification des dépendances
+      - name: Vérification des dépendances
         run: |
           for cmd in cmake ninja zip; do
             if ! command -v $cmd &> /dev/null; then
-              echo "❌ $cmd est manquant"
+              echo "$cmd est manquant"
               exit 1
             fi
-            echo "✅ $cmd trouvé"
           done
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
 
       - name: Extraire version
         id: version
@@ -29,25 +33,45 @@ jobs:
 
       - name: Compiler le projet
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
           cmake --build build
 
-      - name: Créer la release
+      - name: Construire artefacts Linux
+        run: |
+          ./installer/linux/build-deb.sh
+
+      - name: Construire artefacts WebAssembly
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk_env.sh
+          QT_PATH="$HOME/Qt/6.8.3/wasm_32"
+          emcmake cmake -S platform/web -B build-web -DCMAKE_PREFIX_PATH="$QT_PATH"
+          cmake --build build-web
+          mkdir -p web-dist
+          cp build-web/TestApp.html web-dist/index.html
+          cp build-web/TestApp.js web-dist/
+          cp build-web/TestApp.wasm web-dist/
+
+      - name: Créer archive WebAssembly
+        run: |
+          cd web-dist
+          zip -r ../TestApp-web.zip *
+          cd ..
+
+      - name: Publier la Release GitHub
         uses: softprops/action-gh-release@v1
         with:
           name: "Version ${{ env.VERSION }}"
           tag_name: "${{ env.VERSION }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Ajouter les artefacts
-        uses: softprops/action-gh-release@v1
-        with:
           files: |
             *.deb
             *.msi
             *.dmg
             platform/android/app/build/outputs/apk/debug/app-debug.apk
-            web-dist/*.*
+            TestApp-web.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,43 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - run: yes | sdkmanager --licenses
+
+      - name: Installer Qt pour Android
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+          target: android
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/6.8.3/android_armv7" >> $GITHUB_ENV
+
+      - name: Configurer Gradle & Compiler
+        run: |
+          chmod +x ./config/android/gradlew
+          ./config/android/gradlew assembleDebug
+
+      - name: Publier l’APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestApp-android-apk
+          path: config/android/app/build/outputs/apk/debug/*.apk

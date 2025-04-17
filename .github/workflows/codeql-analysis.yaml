@@ -6,17 +6,21 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 1 * * 0'
+    - cron: '0 1 * * 0'  # Chaque dimanche à 1h
+
+env:
+  QT_VERSION: 6.8.3
+  QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/gcc_64
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
   analyze:
     name: CodeQL C/C++ Analysis
     runs-on: ubuntu-latest
-
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
 
     strategy:
       fail-fast: false
@@ -27,30 +31,24 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      - name: Configure CMake
+        run: cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_PREFIX_PATH=${{ env.QT_PATH }}
+
+      - name: Build project
+        run: cmake --build build
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          build-mode: manual
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: 6.8.3
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-
-      - name: Configure CMake project
-        run: |
-          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
-          echo "Using Qt path: $QT_PATH"
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
-
-      - name: Build project with CMake
-        run: cmake --build build
+          build-mode: manual  # obligatoire pour Qt/CMake
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3

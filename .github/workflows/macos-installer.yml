@@ -12,19 +12,16 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: ✅ Vérification des dépendances
-        run: |
-          for cmd in cmake hdiutil; do
-            if ! command -v $cmd &> /dev/null; then
-              echo "❌ $cmd est manquant"
-              exit 1
-            fi
-            echo "✅ $cmd trouvé"
-          done
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
 
       - name: Compiler l’application
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          QT_PATH="$HOME/Qt/6.8.3/clang_64"
+          echo "Using Qt path: $QT_PATH"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
           cmake --build build --config Release
 
       - name: Créer .dmg

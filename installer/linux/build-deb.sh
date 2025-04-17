@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 APP_NAME="TestApp"
 VERSION="1.0.0"
 ARCH="amd64"
@@ -14,33 +16,29 @@ mkdir -p "${PKG_DIR}/usr/share/applications"
 mkdir -p "${PKG_DIR}/usr/share/icons/hicolor/64x64/apps"
 
 echo "📦 Copie des fichiers dans le paquet…"
+
+if [ ! -f "${BUILD_DIR}/${APP_NAME}" ]; then
+  echo "❌ Erreur : binaire ${BUILD_DIR}/${APP_NAME} introuvable."
+  exit 1
+fi
+
 cp "${BUILD_DIR}/${APP_NAME}" "${PKG_DIR}/usr/local/bin/"
-cp "${PKG_DIR}/testapp.desktop" "${PKG_DIR}/usr/share/applications/"
-cp "${PKG_DIR}/testapp.png" "${PKG_DIR}/usr/share/icons/hicolor/64x64/apps/"
 
-# Vérifie présence de postinst/postrm
-if [ -x "${PKG_DIR}/DEBIAN/postinst" ]; then
-    echo "🔧 Script postinst détecté"
-else
-    echo "⚠️  postinst manquant ou non exécutable"
+if [ ! -f "${PKG_DIR}/../testapp.desktop" ]; then
+  echo "❌ Erreur : fichier testapp.desktop introuvable."
+  exit 1
 fi
 
-if [ -x "${PKG_DIR}/DEBIAN/postrm" ]; then
-    echo "🔧 Script postrm détecté"
-else
-    echo "⚠️  postrm manquant ou non exécutable"
+cp "${PKG_DIR}/../testapp.desktop" "${PKG_DIR}/usr/share/applications/"
+
+if [ ! -f "${PKG_DIR}/../testapp.png" ]; then
+  echo "❌ Erreur : icône testapp.png introuvable."
+  exit 1
 fi
+
+cp "${PKG_DIR}/../testapp.png" "${PKG_DIR}/usr/share/icons/hicolor/64x64/apps/"
 
 echo "📦 Création du paquet .deb…"
 dpkg-deb --build "${PKG_DIR}" "${DEB_NAME}"
 
 echo "✅ Paquet généré : ${DEB_NAME}"
-
-🛠️ Avant de lancer le script
-Assure-toi que :
-chmod +x installer/linux/DEBIAN/postinst
-chmod +x installer/linux/DEBIAN/postrm
-chmod +x installer/linux/build-deb.sh
-Puis lance :
-cd installer/linux
-./build-deb.sh

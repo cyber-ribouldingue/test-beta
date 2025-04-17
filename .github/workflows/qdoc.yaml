@@ -19,6 +19,8 @@ jobs:
 
       - name: Build QDoc
         run: |
+          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
+          echo "Using Qt path: $QT_PATH"
           mkdir -p build-doc
           cd build-doc
           qdoc ../docs/testapp.qdocconf

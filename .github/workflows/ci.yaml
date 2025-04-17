@@ -1,0 +1,43 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  QT_VERSION: 6.8.3
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64" >> $GITHUB_ENV
+
+      - name: Installer dépendances Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential libgl1-mesa-dev
+
+      - name: Configurer CMake
+        run: cmake -B build-${{ matrix.build_type }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_PREFIX_PATH="$QT_PATH"
+
+      - name: Compiler
+        run: cmake --build build-${{ matrix.build_type }}
+
+      - name: Lancer les tests
+        run: ctest --test-dir build-${{ matrix.build_type }}

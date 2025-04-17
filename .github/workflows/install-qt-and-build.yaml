@@ -1,0 +1,44 @@
+name: Installer Qt et builder
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Installer aqtinstall et blacklist du miroir
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install aqtinstall
+          mkdir -p ~/.aqt
+          cat << 'EOF' > ~/.aqt/settings.ini
+          [mirrors]
+          blacklist =
+              ftp2.nluug.nl
+          EOF
+
+      - name: ⚙️ Installer Qt 6.8.3 depuis download.qt.io
+        run: |
+          aqt install mac desktop 6.8.3 clang_64 \
+            --base https://download.qt.io
+
+      - name: 📂 Définir CMAKE_PREFIX_PATH
+        run: |
+          echo "CMAKE_PREFIX_PATH=$HOME/Qt/6.8.3/clang_64/lib/cmake" >> $GITHUB_ENV
+
+      - name: 🏗️ Configurer et compiler avec CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+
+      - name: ✅ Lancer les tests
+        run: |
+          cmake --build build --target test

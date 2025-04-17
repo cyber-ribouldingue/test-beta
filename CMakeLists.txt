@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-project(demos VERSION 0.1 LANGUAGES CXX)
 
-# ——— Prise en compte de QT_PATH si défini en CI ———
-if(DEFINED ENV{QT_PATH})
-  message(STATUS "⚙️ Utilisation de QT_PATH depuis l’environnement : $ENV{QT_PATH}")
-  list(APPEND CMAKE_PREFIX_PATH
-       "$ENV{QT_PATH}/lib/cmake/Qt6"
-       "$ENV{QT_PATH}/lib/cmake"
-  )
-endif()
+project(demos VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,20 +14,9 @@ qt_add_executable(TestApp
 )
 
 qt_add_qml_module(TestApp
-    URI testapp
+    URI TestApp
     VERSION 1.0
-    QML_FILES
-        qml/Main.qml
-    RESOURCES
-        config/android/AndroidManifest.xml
-        config/android/build.gradle
-        config/android/res/values/libs.xml
-        config/android/res/xml/qtprovider_paths.xml
-        config/android/gradle/wrapper/gradle-wrapper.jar
-        config/android/gradle/wrapper/gradle-wrapper.properties
-        config/android/gradle.properties
-        config/android/gradlew
-        config/android/gradlew.bat
+    QML_FILES qml/Main.qml
 )
 
 set_target_properties(TestApp PROPERTIES
@@ -45,7 +26,9 @@ set_target_properties(TestApp PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(TestApp PRIVATE Qt6::Quick)
+target_link_libraries(TestApp
+    PRIVATE Qt6::Quick
+)
 
 include(GNUInstallDirs)
 install(TARGETS TestApp

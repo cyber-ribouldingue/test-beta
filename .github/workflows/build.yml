@@ -20,14 +20,12 @@ jobs:
       - name: Checkout du dépôt
         uses: actions/checkout@v4
 
-      # Linux : installer dépendances système
       - name: Installer les dépendances Linux
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libxcb-xkb-dev
 
-      # Vérification des dépendances : bash
       - name: Vérification des dépendances (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
@@ -41,7 +39,6 @@ jobs:
             echo "✅ $cmd trouvé"
           done
 
-      # Vérification des dépendances : PowerShell Windows
       - name: Vérification des dépendances (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -56,24 +53,26 @@ jobs:
             }
           }
 
-      # Installation de Qt (Linux et macOS uniquement)
       - name: Installer Qt via install-qt-action (Linux/macOS)
         if: runner.os != 'Windows'
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: 6.8.3
-          modules: "qtbase qtdeclarative qtquickcontrols2"
-          cache: true
-          retries: 3
 
-      # Configuration CMake
       - name: Configurer le projet
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        shell: bash
+        run: |
+          case "${{ runner.os }}" in
+            Linux)   QT_PATH="$HOME/Qt/6.8.3/gcc_64" ;;
+            macOS)   QT_PATH="$HOME/Qt/6.8.3/clang_64" ;;
+            Windows) QT_PATH="$HOME/Qt/6.8.3/msvc2019_64" ;;
+            *)       echo "Unsupported OS"; exit 1 ;;
+          esac
+          echo "Using Qt path: $QT_PATH"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
 
-      # Compilation
       - name: Compiler le projet
         run: cmake --build build --parallel
 
-      # Tests
       - name: Exécuter les tests
         run: ctest --test-dir build --output-on-failure --parallel $(nproc || 2)

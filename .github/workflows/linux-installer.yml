@@ -15,9 +15,16 @@ jobs:
       - name: Installer dépendances
         run: sudo apt-get update && sudo apt-get install -y dpkg-dev
 
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+
       - name: Compiler l'application
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
+          echo "Using Qt path: $QT_PATH"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_PATH"
           cmake --build build
 
       - name: Préparer la structure du paquet
@@ -33,7 +40,7 @@ jobs:
         run: dpkg-deb --build installer/linux testapp_1.0.0_amd64.deb
 
       - name: Upload de l’installateur
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testapp-debian-installer
           path: testapp_1.0.0_amd64.deb

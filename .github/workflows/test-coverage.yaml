@@ -9,7 +9,7 @@ on:
 env:
   BUILD_TYPE: Debug
   QT_VERSION: 6.8.3
-  ARCGIS_VERSION: 200.6
+  QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/gcc_64
 
 jobs:
   coverage:
@@ -25,39 +25,35 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang llvm lcov ninja-build
+          sudo apt-get install -y clang llvm lcov ninja-build valgrind
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{ env.QT_VERSION }}'
+          version: ${{ env.QT_VERSION }}
 
       - name: Configure CMake for coverage
-        run: |
-          QT_PATH="$HOME/Qt/${{ env.QT_VERSION }}/gcc_64"
-          echo "Using Qt path: $QT_PATH"
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_PREFIX_PATH="$QT_PATH" \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
-            -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping"
+        run: cmake -B build \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
+          -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
+          -DCMAKE_PREFIX_PATH=${{ env.QT_PATH }}
 
       - name: Build with coverage
-        run: |
-          cmake --build build
+        run: cmake --build build
 
-      - name: Run tests and generate profraw
+      - name: Run tests and generate profile data
         run: |
           cd build/tests/cpp-tests
           LLVM_PROFILE_FILE="CppTest.profraw" ./CppTest
 
-      - name: Generate .profdata
+      - name: Merge profile data
         run: |
           cd build/tests/cpp-tests
           llvm-profdata merge -output=CppTest.profdata CppTest.profraw
 
-      - name: Show coverage in terminal
+      - name: Display coverage in terminal
         run: |
           cd build/tests/cpp-tests
           llvm-cov show ./CppTest -instr-profile=CppTest.profdata > coverage.txt
@@ -67,7 +63,7 @@ jobs:
         run: |
           cd build/tests/cpp-tests
           llvm-cov export ./CppTest -instr-profile=CppTest.profdata -format=lcov > coverage.info
-          lcov --remove coverage.info '/usr/*' '*/build/*' --output-file coverage.info.cleaned --ignore-errors unused
+          lcov --remove coverage.info '/usr/*' '*/build/*' --output-file coverage.info.cleaned
           genhtml coverage.info.cleaned --output-directory coverage_html
 
       - name: Upload HTML coverage report

@@ -7,55 +7,50 @@ BUILD_DIR=build
 
 all: linux windows macos android ios web
 
-## ----- Linux -----
+# ----- Linux -----
 
 linux:
-	@echo "🔧 Compilation Linux"
 	cmake -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release
 	cmake --build $(BUILD_DIR)
-	@echo "📦 Packaging .deb"
 	./installer/linux/build-deb.sh
 
-## ----- Windows -----
+# ----- Windows -----
 
 windows:
-	@echo "🪟 Création de l'installateur MSI (Windows)"
 	cd installer/windows && ./build-msi.bat
 
-## ----- macOS -----
+# ----- macOS -----
 
 macos:
-	@echo "🍎 Création du .dmg (macOS)"
 	cd installer/macos && ./create-dmg.sh
 
-## ----- Android -----
+# ----- Android -----
 
 android:
-	@echo "🤖 Compilation Android (.apk)"
 	cd platform/android && ./gradlew assembleDebug
 
-## ----- iOS -----
+# ----- iOS -----
 
 ios:
-	@echo "📱 Compilation iOS (Xcode)"
 	cmake -S platform/ios -B build-ios -GXcode -DCMAKE_SYSTEM_NAME=iOS
 
-## ----- WebAssembly -----
+# ----- WebAssembly -----
 
 web:
-	@echo "🌐 Compilation WebAssembly"
+	source ./emsdk/emsdk_env.sh || true
 	emcmake cmake -S platform/web -B build-web
 	cmake --build build-web
 	mkdir -p web-dist
-	cp platform/web/index.html web-dist/
-	cp build-web/$(APP_NAME).js web-dist/
-	cp build-web/$(APP_NAME).wasm web-dist/
+	cp build-web/TestApp.html web-dist/index.html
+	cp build-web/TestApp.js web-dist/
+	cp build-web/TestApp.wasm web-dist/
+
+# ----- Serveur local WebAssembly -----
 
 serve:
-	@echo "🌍 Serveur local sur http://localhost:8080"
 	cd web-dist && python3 -m http.server 8080
 
-## ----- Nettoyage -----
+# ----- Nettoyage -----
 
 clean:
 	rm -rf build build-ios build-web web-dist

@@ -1,31 +1,38 @@
-name: QDoc Documentation
+name: Génération Documentation QDoc
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   qdoc:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      - name: Installer Python et QDoc
+        uses: actions/setup-python@v5
         with:
-          version: '6.8.3'
+          python-version: '3.x'
+      - run: pip install --upgrade qdoc-plugin
 
-      - name: Build QDoc
+      - name: Générer la doc QDoc
         run: |
-          QT_PATH="$HOME/Qt/6.8.3/gcc_64"
-          echo "Using Qt path: $QT_PATH"
-          mkdir -p build-doc
-          cd build-doc
-          qdoc ../docs/testapp.qdocconf
+          mkdir -p docs_output
+          qdoc \
+            -project CMakeLists.txt \
+            -output docs_output
 
-      - name: Upload documentation
+      - name: Publier sur GitHub Pages
         uses: actions/upload-pages-artifact@v1
         with:
-          path: build-doc/html
+          path: docs_output
+
+      - name: Publier artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdoc-output
+          path: docs_output

@@ -27,7 +27,15 @@ jobs:
         with:
           version: 3.1.27
 
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+
       - name: Compiler Web
         run: |
-          emcmake cmake -S platform/web -B build-web
+          source ./emsdk/emsdk_env.sh
+          QT_PATH="$HOME/Qt/6.8.3/wasm_32"
+          echo "Using Qt path: $QT_PATH"
+          emcmake cmake -S platform/web -B build-web -DCMAKE_PREFIX_PATH="$QT_PATH"
           cmake --build build-web

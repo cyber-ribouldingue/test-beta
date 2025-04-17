@@ -2,72 +2,55 @@ name: C++ Test Coverage (LLVM)
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
-  BUILD_TYPE: Debug
   QT_VERSION: 6.8.3
-  QT_PATH: ${{ runner.home }}/Qt/${{ env.QT_VERSION }}/gcc_64
 
 jobs:
   coverage:
-    name: Coverage (Linux)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang llvm lcov ninja-build valgrind
-
-      - name: Install Qt
+      - name: Installer Qt
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
 
-      - name: Configure CMake for coverage
-        run: cmake -B build \
-          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+      - name: Définir QT_PATH
+        run: echo "QT_PATH=$HOME/Qt/${{ env.QT_VERSION }}/gcc_64" >> $GITHUB_ENV
+
+      - name: Installer dépendances
+        run: sudo apt-get update && sudo apt-get install -y clang llvm lcov ninja-build
+
+      - name: Configurer CMake pour couverture
+        run: cmake -B build-coverage \
+          -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_CXX_COMPILER=clang++ \
           -DCMAKE_CXX_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
           -DCMAKE_EXE_LINKER_FLAGS="--coverage -fprofile-instr-generate -fcoverage-mapping" \
-          -DCMAKE_PREFIX_PATH=${{ env.QT_PATH }}
+          -DCMAKE_PREFIX_PATH="$QT_PATH"
 
-      - name: Build with coverage
-        run: cmake --build build
+      - name: Compiler
+        run: cmake --build build-coverage
 
-      - name: Run tests and generate profile data
+      - name: Exécuter tests & générer profil
         run: |
-          cd build/tests/cpp-tests
+          cd build-coverage/tests/cpp-tests
           LLVM_PROFILE_FILE="CppTest.profraw" ./CppTest
-
-      - name: Merge profile data
-        run: |
-          cd build/tests/cpp-tests
           llvm-profdata merge -output=CppTest.profdata CppTest.profraw
 
-      - name: Display coverage in terminal
+      - name: Exporter couverture
         run: |
-          cd build/tests/cpp-tests
-          llvm-cov show ./CppTest -instr-profile=CppTest.profdata > coverage.txt
-          head -n 30 coverage.txt
-
-      - name: Generate HTML coverage report
-        run: |
-          cd build/tests/cpp-tests
+          cd build-coverage/tests/cpp-tests
           llvm-cov export ./CppTest -instr-profile=CppTest.profdata -format=lcov > coverage.info
-          lcov --remove coverage.info '/usr/*' '*/build/*' --output-file coverage.info.cleaned
-          genhtml coverage.info.cleaned --output-directory coverage_html
 
-      - name: Upload HTML coverage report
+      - name: Publier rapport de couverture
         uses: actions/upload-artifact@v4
         with:
-          name: llvm-coverage-html
-          path: build/tests/cpp-tests/coverage_html
+          name: coverage-report
+          path: build-coverage/tests/cpp-tests/coverage.info

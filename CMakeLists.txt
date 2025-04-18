@@ -26,6 +26,7 @@ set_target_properties(TestApp PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+
 target_link_libraries(TestApp
     PRIVATE Qt6::Quick
 )
